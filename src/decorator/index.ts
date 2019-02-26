@@ -22,8 +22,35 @@
  * SOFTWARE.
  */
 
-export * from './auth.module';
-export * from './interfaces';
-export * from './service/user-detail.service';
-export * from './exception';
-export * from './decorator';
+/*
+ * Created by Diluka on 2019-02-26.
+ *
+ *
+ * ----------- 神 兽 佑 我 -----------
+ *        ┏┓      ┏┓+ +
+ *       ┏┛┻━━━━━━┛┻┓ + +
+ *       ┃          ┃
+ *       ┣     ━    ┃ ++ + + +
+ *      ████━████   ┃+
+ *       ┃          ┃ +
+ *       ┃  ┴       ┃
+ *       ┃          ┃ + +
+ *       ┗━┓      ┏━┛  Code is far away from bug
+ *         ┃      ┃       with the animal protecting
+ *         ┃      ┃ + + + +
+ *         ┃      ┃
+ *         ┃      ┃ +
+ *         ┃      ┃      +  +
+ *         ┃      ┃    +
+ *         ┃      ┗━━━┓ + +
+ *         ┃          ┣┓
+ *         ┃          ┏┛
+ *         ┗┓┓┏━━━━┳┓┏┛ + + + +
+ *          ┃┫┫    ┃┫┫
+ *          ┗┻┛    ┗┻┛+ + + +
+ * ----------- 永 无 BUG ------------
+ */
+export * from './auth-action.decorator';
+export * from './authorized.decorator';
+export * from './current-user.decorator';
+export * from './no-auth.decorator';

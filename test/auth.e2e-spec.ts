@@ -53,10 +53,8 @@
 
 import {Controller, Get, INestApplication, Injectable, Logger} from '@nestjs/common';
 import {Test} from '@nestjs/testing';
-import {AuthModule, UserDetail, UserDetailService} from '../src';
-import {Authorized} from '../src/decorator/authorized.decorator';
+import {AuthModule, Authorized, NoAuth, UserDetail, UserDetailService} from '../src';
 import * as request from 'supertest';
-import {NoAuth} from '../src/decorator/no-auth.decorator';
 
 @Authorized('A')
 @Controller('tests')
