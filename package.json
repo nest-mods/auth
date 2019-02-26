@@ -1,0 +1,56 @@
+{
+  "name": "@nest-mods/auth",
+  "version": "0.0.1",
+  "description": "simple role based auth for nestjs using passport",
+  "license": "MIT",
+  "repository": "https://github.com/nest-mods/auth",
+  "main": "dist/index.js",
+  "author": {
+    "name": "Diluka"
+  },
+  "scripts": {
+    "test": "jest",
+    "build": "tsc -p tsconfig.build.json",
+    "clean": "rimraf dist",
+    "lint": "tslint -p tsconfig.json -c tslint.json",
+    "prepare": "npm run clean && npm run build"
+  },
+  "peerDependencies": {
+    "@nestjs/common": ">=5",
+    "@nestjs/core": ">=5",
+    "@nestjs/passport": ">=5",
+    "lodash": ">=4",
+    "reflect-metadata": "^0.1.12"
+  },
+  "devDependencies": {
+    "@nest-mods/log": "0.0.1",
+    "@nestjs/common": "^5.7.3",
+    "@nestjs/core": "^5.7.3",
+    "@nestjs/passport": "^5.1.0",
+    "@nestjs/testing": "^5.7.3",
+    "@types/jest": "^24.0.8",
+    "@types/lodash": "^4.14.121",
+    "@types/node": "^11.9.5",
+    "@types/supertest": "^2.0.7",
+    "jest": "^24.1.0",
+    "lodash": "^4.17.11",
+    "reflect-metadata": "^0.1.13",
+    "rimraf": "^2.6.3",
+    "rxjs": "^6.4.0",
+    "supertest": "^3.4.2",
+    "ts-jest": "^24.0.0",
+    "ts-loader": "^5.3.3",
+    "ts-node": "^8.0.2",
+    "tslint": "^5.13.0",
+    "typescript": "^3.3.3333",
+    "winston": "^3.2.1"
+  },
+  "dependencies": {
+    "class-transformer": "^0.2.0",
+    "class-validator": "^0.9.1",
+    "passport": "^0.4.0",
+    "passport-http": "^0.3.0",
+    "passport-jwt": "^4.0.0",
+    "tslib": "^1.9.3"
+  }
+}
