@@ -41,11 +41,6 @@ export class AuthService {
 
     constructor(@Inject(AUTH_MODULE_OPTIONS) private options: AuthModuleOptions,
                 private userService: UserDetailService) {
-        this.logger.log({
-            message: 'UserDetailService',
-            userService,
-            level: 'silly'
-        });
     }
 
     async issueToken(user: UserDetail, authType: AuthType = AuthType.PASSWORD) {

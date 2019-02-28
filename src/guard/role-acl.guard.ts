@@ -68,7 +68,9 @@ export class RoleAclGuard implements CanActivate {
 
         this.logger.log({
             message: 'check roles',
-            user,
+            id: user.id,
+            username: user.username,
+            roles: user.roles,
             allowedRoles,
             level: 'silly'
         });
