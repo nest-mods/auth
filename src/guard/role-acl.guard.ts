@@ -48,10 +48,30 @@ export class RoleAclGuard implements CanActivate {
             return true;
         }
 
+        if (this.getMetadataByKey(context, METADATA_KEY_AUTH_ACTION) === AuthActionType.NO) {
+            return true;
+        }
+
+        const allowedRoles = this.getMetadataByKey<string[]>(context, METADATA_KEY_AUTHORIZED);
+
+        if (_.isUndefined(allowedRoles)) {
+            return true;
+        }
+
+        if (_.isEmpty(allowedRoles)) {
+            return true;
+        }
+
         const request = context.switchToHttp().getRequest();
 
         const user = request.user;
-        this.logger.log({message: 'current user', user, level: 'silly'});
+
+        this.logger.log({
+            message: 'check roles',
+            user,
+            allowedRoles,
+            level: 'silly'
+        });
 
         if (!user) {
             throw new UnauthorizedException('Please login');
@@ -59,22 +79,6 @@ export class RoleAclGuard implements CanActivate {
 
         // super user has all access
         if (!_.isNil(this.options.superUserId) && this.options.superUserId === user.id) {
-            return true;
-        }
-
-        if (this.getMetadataByKey(context, METADATA_KEY_AUTH_ACTION) === AuthActionType.NO) {
-            return true;
-        }
-
-        const allowedRoles = this.getMetadataByKey<string[]>(context, METADATA_KEY_AUTHORIZED);
-
-        this.logger.log({message: `allowedRoles`, allowedRoles, level: 'silly'});
-
-        if (_.isUndefined(allowedRoles)) {
-            return true;
-        }
-
-        if (_.isEmpty(allowedRoles)) {
             return true;
         }
 

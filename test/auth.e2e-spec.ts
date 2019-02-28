@@ -51,7 +51,7 @@
  * ----------- 永 无 BUG ------------
  */
 
-import {Controller, Get, INestApplication, Injectable, Logger} from '@nestjs/common';
+import {Controller, Get, INestApplication, Injectable, Logger, Module} from '@nestjs/common';
 import {Test} from '@nestjs/testing';
 import {AuthModule, Authorized, NoAuth, UserDetail, UserDetailService} from '../src';
 import * as request from 'supertest';
@@ -106,12 +106,25 @@ class UserService extends UserDetailService {
         user.username = username;
         user.roles = ['A', 'B'];
         user.lastChangedAt = new Date();
+        logger.log({
+            message: 'mock user',
+            user,
+            level: 'silly'
+        });
         return user;
     }
 
     async verifyPassword(user: User, raw: string): Promise<boolean> {
         return true;
     }
+}
+
+@Module({
+    providers: [UserService],
+    controllers: [TestController],
+    exports: [UserService],
+})
+class DemoModule {
 }
 
 const logger = new Logger('AuthModule Tests');
@@ -123,16 +136,15 @@ describe('AuthModule Tests', function() {
 
     beforeAll(async () => {
         const module = await Test.createTestingModule({
-            imports: [AuthModule.forRootAsync({
-                useFactory: () => ({
-                    superUserId: 1
-                }),
-                UserDetailService: UserService,
-                enabledController: true,
-            })],
-            providers: [UserService],
-            exports: [UserService],
-            controllers: [TestController],
+            imports: [
+                DemoModule,
+                AuthModule.forRootAsync({
+                    useFactory: () => ({
+                        superUserId: 1
+                    }),
+                    UserDetailService: UserService,
+                    enabledController: true,
+                })]
         }).compile();
 
         app = module.createNestApplication();
