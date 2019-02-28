@@ -48,6 +48,20 @@ export class RoleAclGuard implements CanActivate {
             return true;
         }
 
+        const request = context.switchToHttp().getRequest();
+
+        const user = request.user;
+        this.logger.log({message: 'current user', user, level: 'silly'});
+
+        if (!user) {
+            throw new UnauthorizedException('Please login');
+        }
+
+        // super user has all access
+        if (!_.isNil(this.options.superUserId) && this.options.superUserId === user.id) {
+            return true;
+        }
+
         if (this.getMetadataByKey(context, METADATA_KEY_AUTH_ACTION) === AuthActionType.NO) {
             return true;
         }
@@ -58,15 +72,6 @@ export class RoleAclGuard implements CanActivate {
 
         if (_.isUndefined(allowedRoles)) {
             return true;
-        }
-
-        const request = context.switchToHttp().getRequest();
-
-        const user = request.user;
-        this.logger.log({message: 'current user', user, level: 'silly'});
-
-        if (!user) {
-            throw new UnauthorizedException('Please login');
         }
 
         if (_.isEmpty(allowedRoles)) {

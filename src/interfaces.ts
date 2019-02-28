@@ -38,6 +38,7 @@ export interface AuthModuleOptions {
     useJwt?: boolean;
     useBasic?: boolean;
     useACL?: boolean;
+    superUserId?: number;
     basicAuth?: {
         defaultAuthAction?: AuthActionType,
     };

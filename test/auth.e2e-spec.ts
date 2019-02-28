@@ -102,7 +102,7 @@ class UserService extends UserDetailService {
     async loadByUsername(username: string): Promise<User> {
         logger.log(`loadByUsername ${username}`);
         const user = new User();
-        user.id = 1;
+        user.id = username === 'su' ? 1 : 2;
         user.username = username;
         user.roles = ['A', 'B'];
         user.lastChangedAt = new Date();
@@ -124,7 +124,9 @@ describe('AuthModule Tests', function() {
     beforeAll(async () => {
         const module = await Test.createTestingModule({
             imports: [AuthModule.forRootAsync({
-                useFactory: () => ({}),
+                useFactory: () => ({
+                    superUserId: 1
+                }),
                 UserDetailService: UserService,
                 enabledController: true,
             })],
@@ -189,6 +191,13 @@ describe('AuthModule Tests', function() {
         await request(app.getHttpServer())
             .get('/tests/')
             .auth(token, {type: 'bearer'})
+            .expect(200);
+    });
+
+    it('should su access', async () => {
+        await request(app.getHttpServer())
+            .get('/tests/c')
+            .auth('su', 'test')
             .expect(200);
     });
 });
