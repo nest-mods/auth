@@ -63,11 +63,11 @@ export class AuthJwtGuard extends AuthGuard('jwt') {
         try {
             const result = await resolveAny<boolean>(super.canActivate(context));
 
-            this.logger.log({message: `jwt auth canActivate ${result}`, level: 'silly'});
+            // this.logger.log({message: `jwt auth canActivate ${result}`, level: 'silly'});
 
             return result;
         } catch (e) {
-            this.logger.log({message: e.message, level: 'debug'});
+            // this.logger.log({message: e.message, level: 'silly'});
             if (authActionType === AuthActionType.TRY) {
                 return true;
             } else {
