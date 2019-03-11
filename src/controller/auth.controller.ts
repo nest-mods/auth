@@ -30,6 +30,7 @@ import {UserDetail} from '../interfaces';
 import {LoginDto} from '../dto/login.dto';
 import {Log} from '@nest-mods/log/dist';
 import {NoAuth} from '../decorator/no-auth.decorator';
+import {setSwaggerOperation, setSwaggerUseTags} from '@nest-mods/swagger-helper';
 
 @Controller('auth')
 export class AuthController {
@@ -56,3 +57,7 @@ export class AuthController {
     }
 
 }
+
+setSwaggerUseTags(AuthController, '@nest-mods/auth');
+setSwaggerOperation(AuthController.prototype.login, {summary: 'login', description: 'login for a jwt token'});
+setSwaggerOperation(AuthController.prototype.me, {summary: 'current user info', description: 'get current user info'});
