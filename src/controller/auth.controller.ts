@@ -22,40 +22,44 @@
  * SOFTWARE.
  */
 
-import {Body, Controller, Get, LoggerService, Post, ValidationPipe} from '@nestjs/common';
-import {AuthService} from '../service/auth.service';
-import {Authorized, CurrentUser, NoAuth} from '../decorator';
-import {UserDetail} from '../interfaces';
-import {LoginDto} from '../dto/login.dto';
-import {Log} from '@nest-mods/log';
-import {setSwaggerOperation, setSwaggerUseTags} from '@nest-mods/swagger-helper';
+import { Body, Controller, Get, LoggerService, Post, ValidationPipe } from '@nestjs/common';
+import { AuthService } from '../service/auth.service';
+import { Authorized, CurrentUser, NoAuth } from '../decorator';
+import { UserDetail } from '../interfaces';
+import { LoginDto } from '../dto/login.dto';
+import { Log } from '@nest-mods/log';
+import { setSwaggerOperation, setSwaggerResponse, setSwaggerUseTags } from '@nest-mods/swagger-helper';
+import { IssuedTokenDto } from '../dto/issued-token.dto';
+import { UserDetailDto } from '../dto/user-detail.dto';
 
 @Controller('auth')
 export class AuthController {
 
-    @Log() private logger: LoggerService;
+  @Log() private logger: LoggerService;
 
-    constructor(private authService: AuthService) {
-    }
+  constructor(private authService: AuthService) {
+  }
 
-    @NoAuth()
-    @Post('login')
-    async login(@Body(new ValidationPipe()) form: LoginDto) {
-        this.logger.log({message: `${form.username} is logging in`, level: 'debug'});
-        const user = await this.authService.verifyByPass(form.username, form.password);
-        const token = await this.authService.issueToken(user);
-        return {token};
-    }
+  @NoAuth()
+  @Post('login')
+  async login(@Body(new ValidationPipe()) form: LoginDto) {
+    this.logger.log({ message: `${form.username} is logging in`, level: 'debug' });
+    const user = await this.authService.verifyByPass(form.username, form.password);
+    const token = await this.authService.issueToken(user);
+    return { token };
+  }
 
-    @Authorized()
-    @Get('me')
-    async me(@CurrentUser({required: true}) user: UserDetail) {
-        this.logger.log({message: 'me', user, level: 'silly'});
-        return user;
-    }
+  @Authorized()
+  @Get('me')
+  async me(@CurrentUser({ required: true }) user: UserDetail) {
+    this.logger.log({ message: 'me', user, level: 'silly' });
+    return user;
+  }
 
 }
 
 setSwaggerUseTags(AuthController, '@nest-mods/auth');
-setSwaggerOperation(AuthController.prototype.login, {summary: 'login', description: 'login for a jwt token'});
-setSwaggerOperation(AuthController.prototype.me, {summary: 'current user info', description: 'get current user info'});
+setSwaggerOperation(AuthController.prototype.login, { summary: 'login', description: 'login for a jwt token' });
+setSwaggerOperation(AuthController.prototype.me, { summary: 'current user info', description: 'get current user info' });
+setSwaggerResponse(AuthController.prototype.login, { status: 200, type: IssuedTokenDto, description: 'issued jwt token' });
+setSwaggerResponse(AuthController.prototype.me, { status: 200, type: UserDetailDto, description: 'partial current user' });
