@@ -31,7 +31,7 @@ import {AuthModuleAsyncOptions, AuthModuleOptions} from './interfaces';
 import {AuthController} from './controller/auth.controller';
 import {RoleAclGuard} from './guard/role-acl.guard';
 import {AUTH_MODULE_OPTIONS, AuthActionType} from './constants';
-import {Log, LogModule} from '@nest-mods/log';
+import {Log} from '@nest-mods/log';
 import {UserDetailService} from './service/user-detail.service';
 import {JwtStrategy} from './strategy/jwt.strategy';
 import {BasicStrategy} from './strategy/basic.strategy';
@@ -58,7 +58,6 @@ const defaultAuthConfig: Partial<AuthModuleOptions> = {
 
 @Global()
 @Module({
-    imports: [LogModule],
     providers: [AuthService, JwtStrategy, BasicStrategy, {
         provide: APP_GUARD,
         useClass: AuthBasicGuard,

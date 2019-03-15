@@ -51,6 +51,7 @@
  * ----------- 永 无 BUG ------------
  */
 import {IsNotEmpty} from 'class-validator';
+import {setSwaggerModelProperty} from '@nest-mods/swagger-helper';
 
 export class LoginDto {
     @IsNotEmpty()
@@ -59,3 +60,14 @@ export class LoginDto {
     @IsNotEmpty()
     password: string;
 }
+
+setSwaggerModelProperty(LoginDto, 'username', {
+    type: String,
+    required: true,
+    description: 'username',
+});
+setSwaggerModelProperty(LoginDto, 'password', {
+    type: String,
+    required: true,
+    description: 'password',
+});

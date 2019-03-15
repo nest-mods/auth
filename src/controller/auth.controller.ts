@@ -24,12 +24,10 @@
 
 import {Body, Controller, Get, LoggerService, Post, ValidationPipe} from '@nestjs/common';
 import {AuthService} from '../service/auth.service';
-import {CurrentUser} from '../decorator/current-user.decorator';
-import {Authorized} from '../decorator/authorized.decorator';
+import {Authorized, CurrentUser, NoAuth} from '../decorator';
 import {UserDetail} from '../interfaces';
 import {LoginDto} from '../dto/login.dto';
-import {Log} from '@nest-mods/log/dist';
-import {NoAuth} from '../decorator/no-auth.decorator';
+import {Log} from '@nest-mods/log';
 import {setSwaggerOperation, setSwaggerUseTags} from '@nest-mods/swagger-helper';
 
 @Controller('auth')
