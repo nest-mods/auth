@@ -52,7 +52,6 @@
  */
 import { UserDetail } from '../interfaces';
 import { setSwaggerModelProperty } from '@nest-mods/swagger-helper';
-import { IssuedTokenDto } from './issued-token.dto';
 
 export class UserDetailDto implements UserDetail {
   id: number;
@@ -61,20 +60,20 @@ export class UserDetailDto implements UserDetail {
   username: string;
 }
 
-setSwaggerModelProperty(IssuedTokenDto, 'id', {
+setSwaggerModelProperty(UserDetailDto, 'id', {
   type: Number,
   description: 'id',
 });
-setSwaggerModelProperty(IssuedTokenDto, 'lastChangedAt', {
+setSwaggerModelProperty(UserDetailDto, 'lastChangedAt', {
   type: Date,
   description: 'lastChangedAt',
 });
-setSwaggerModelProperty(IssuedTokenDto, 'roles', {
+setSwaggerModelProperty(UserDetailDto, 'roles', {
   type: String,
   isArray: true,
   description: 'roles',
 });
-setSwaggerModelProperty(IssuedTokenDto, 'username', {
+setSwaggerModelProperty(UserDetailDto, 'username', {
   type: String,
   description: 'username',
 });
