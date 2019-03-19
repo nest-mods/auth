@@ -61,11 +61,12 @@ export class UserDetailDto implements UserDetail {
 }
 
 setSwaggerModelProperty(UserDetailDto, 'id', {
-  type: Number,
+  type: 'integer',
   description: 'id',
 });
 setSwaggerModelProperty(UserDetailDto, 'lastChangedAt', {
-  type: Date,
+  type: 'string',
+  format: 'date-time',
   description: 'lastChangedAt',
 });
 setSwaggerModelProperty(UserDetailDto, 'roles', {
