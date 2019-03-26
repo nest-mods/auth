@@ -22,10 +22,10 @@
  * SOFTWARE.
  */
 
-import {ReflectMetadata} from '@nestjs/common';
-import {METADATA_KEY_AUTHORIZED} from '../constants';
+import { SetMetadata } from '@nestjs/common';
+import { METADATA_KEY_AUTHORIZED } from '../constants';
 import * as _ from 'lodash';
 
 export const Authorized = (...roles: any[]) => {
-    return ReflectMetadata(METADATA_KEY_AUTHORIZED, _.uniq(_.compact(_.flattenDeep(roles))));
+  return SetMetadata(METADATA_KEY_AUTHORIZED, _.uniq(_.compact(_.flattenDeep(roles))));
 };

@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-import {ReflectMetadata} from '@nestjs/common';
-import {AuthActionType, METADATA_KEY_AUTH_ACTION} from '../constants';
+import { SetMetadata } from '@nestjs/common';
+import { AuthActionType, METADATA_KEY_AUTH_ACTION } from '../constants';
 
-export const AuthAction = (type: AuthActionType) => ReflectMetadata(METADATA_KEY_AUTH_ACTION, type);
+export const AuthAction = (type: AuthActionType) => SetMetadata(METADATA_KEY_AUTH_ACTION, type);
