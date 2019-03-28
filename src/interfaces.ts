@@ -22,52 +22,56 @@
  * SOFTWARE.
  */
 
-import {AuthActionType} from './constants';
-import {SignOptions} from 'jsonwebtoken';
-import {ModuleMetadata, Type} from '@nestjs/common/interfaces';
-import {UserDetailService} from './service/user-detail.service';
+import { AuthActionType } from './constants';
+import { SignOptions } from 'jsonwebtoken';
+import { ModuleMetadata, Type } from '@nestjs/common/interfaces';
+import { UserDetailService } from './service/user-detail.service';
 
 export interface UserDetail {
-    id?: number;
-    username: string;
-    roles: string[];
-    lastChangedAt: Date;
+  id?: number;
+  username: string;
+  roles: string[];
+  lastChangedAt: Date;
 }
 
 export interface AuthModuleOptions {
-    useJwt?: boolean;
-    useBasic?: boolean;
-    useACL?: boolean;
-    superUserId?: number;
-    basicAuth?: {
-        defaultAuthAction?: AuthActionType,
-    };
-    jwtAuth?: {
-        defaultAuthAction?: AuthActionType,
-        queryTokenKey?: string,
-        secret?: string,
-        signOptions?: SignOptions,
-    };
+  useJwt?: boolean;
+  useBasic?: boolean;
+  useACL?: boolean;
+  /**
+   * @deprecated
+   */
+  superUserId?: number;
+  bypassUser?: (user: UserDetail) => Promise<boolean> | boolean;
+  basicAuth?: {
+    defaultAuthAction?: AuthActionType,
+  };
+  jwtAuth?: {
+    defaultAuthAction?: AuthActionType,
+    queryTokenKey?: string,
+    secret?: string,
+    signOptions?: SignOptions,
+  };
 }
 
 export interface AuthModuleAsyncOptions extends Pick<ModuleMetadata, 'imports'> {
-    useFactory?: (...args: any[]) => Promise<AuthModuleOptions> | AuthModuleOptions;
-    inject?: any[];
-    UserDetailService: Type<UserDetailService>;
-    enabledController?: boolean;
+  useFactory?: (...args: any[]) => Promise<AuthModuleOptions> | AuthModuleOptions;
+  inject?: any[];
+  UserDetailService: Type<UserDetailService>;
+  enabledController?: boolean;
 }
 
 export type Callback<T = any> = (error: Error | null, data?: T) => void;
 
 export interface Payload {
-    uid: string;
-    sub: string;
-    roles: string[];
-    authType: string;
-    iat: number;
-    exp: number;
-    nbf?: number;
-    jti?: string;
-    iss: string;
-    aud: string;
+  uid: string;
+  sub: string;
+  roles: string[];
+  authType: string;
+  iat: number;
+  exp: number;
+  nbf?: number;
+  jti?: string;
+  iss: string;
+  aud: string;
 }

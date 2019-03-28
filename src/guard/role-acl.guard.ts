@@ -22,80 +22,89 @@
  * SOFTWARE.
  */
 
-import {CanActivate, ExecutionContext, Inject, Injectable, LoggerService, UnauthorizedException} from '@nestjs/common';
-import {Observable} from 'rxjs';
-import {Reflector} from '@nestjs/core';
-import {AUTH_MODULE_OPTIONS, AuthActionType, METADATA_KEY_AUTH_ACTION, METADATA_KEY_AUTHORIZED} from '../constants';
+import { CanActivate, ExecutionContext, Inject, Injectable, LoggerService, UnauthorizedException } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { AUTH_MODULE_OPTIONS, AuthActionType, METADATA_KEY_AUTH_ACTION, METADATA_KEY_AUTHORIZED } from '../constants';
 import * as _ from 'lodash';
-import {Log} from '@nest-mods/log';
-import {AuthModuleOptions} from '../interfaces';
+import { Log } from '@nest-mods/log';
+import { AuthModuleOptions } from '../interfaces';
 
 @Injectable()
 export class RoleAclGuard implements CanActivate {
 
-    @Log() private logger: LoggerService;
+  @Log() private logger: LoggerService;
 
-    constructor(private readonly reflector: Reflector,
-                @Inject(AUTH_MODULE_OPTIONS) private options: AuthModuleOptions) {
+  constructor(private readonly reflector: Reflector,
+              @Inject(AUTH_MODULE_OPTIONS) private options: AuthModuleOptions) {
+  }
+
+  async canActivate(
+    context: ExecutionContext,
+  ) {
+
+    if (!this.options.useACL) {
+      this.logger.log({ message: 'ACL not enabled', level: 'silly' });
+      return true;
     }
 
-    canActivate(
-        context: ExecutionContext,
-    ): boolean | Promise<boolean> | Observable<boolean> {
-
-        if (!this.options.useACL) {
-            this.logger.log({message: 'ACL not enabled', level: 'silly'});
-            return true;
-        }
-
-        if (this.getMetadataByKey(context, METADATA_KEY_AUTH_ACTION) === AuthActionType.NO) {
-            return true;
-        }
-
-        const allowedRoles = this.getMetadataByKey<string[]>(context, METADATA_KEY_AUTHORIZED);
-
-        if (_.isUndefined(allowedRoles)) {
-            return true;
-        }
-
-        if (_.isEmpty(allowedRoles)) {
-            return true;
-        }
-
-        const request = context.switchToHttp().getRequest();
-
-        const user = request.user;
-
-        // this.logger.log({
-        //     message: 'check roles',
-        //     id: user.id,
-        //     username: user.username,
-        //     roles: user.roles,
-        //     allowedRoles,
-        //     level: 'silly'
-        // });
-
-        if (!user) {
-            throw new UnauthorizedException('Please login');
-        }
-
-        // super user has all access
-        if (!_.isNil(this.options.superUserId) && this.options.superUserId === user.id) {
-            return true;
-        }
-
-        return (user.roles || []).some(role => (allowedRoles as any).includes(role));
-
+    if (this.getMetadataByKey(context, METADATA_KEY_AUTH_ACTION) === AuthActionType.NO) {
+      return true;
     }
 
-    private getMetadataByKey<T>(context: ExecutionContext, key: string) {
+    const request = context.switchToHttp().getRequest();
 
-        let data = this.reflector.get<T>(key, context.getHandler());
+    const user = request.user;
 
-        if (data === undefined) {
-            data = this.reflector.get<T>(key, context.getClass());
-        }
-
-        return data;
+    if (!user) {
+      throw new UnauthorizedException('Please login');
     }
+
+    // this.logger.log({
+    //     message: 'check roles',
+    //     id: user.id,
+    //     username: user.username,
+    //     roles: user.roles,
+    //     allowedRoles,
+    //     level: 'silly'
+    // });
+
+    // super user has all access
+    if (!_.isNil(this.options.superUserId)) {
+      this.logger.warn('superUserId is deprecated, use bypassUser instead');
+      if (this.options.superUserId === user.id) {
+        return true;
+      }
+    }
+
+    if (_.isFunction(this.options.bypassUser)) {
+      const isBypass = await this.options.bypassUser(user);
+      if (isBypass === true) {
+        return true;
+      }
+    }
+
+    const allowedRoles = this.getMetadataByKey<string[]>(context, METADATA_KEY_AUTHORIZED);
+
+    if (_.isUndefined(allowedRoles)) {
+      return true;
+    }
+
+    if (_.isEmpty(allowedRoles)) {
+      return true;
+    }
+
+    return (user.roles || []).some(role => (allowedRoles as any).includes(role));
+
+  }
+
+  private getMetadataByKey<T>(context: ExecutionContext, key: string) {
+
+    let data = this.reflector.get<T>(key, context.getHandler());
+
+    if (data === undefined) {
+      data = this.reflector.get<T>(key, context.getClass());
+    }
+
+    return data;
+  }
 }

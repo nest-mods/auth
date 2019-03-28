@@ -51,78 +51,78 @@
  * ----------- 永 无 BUG ------------
  */
 
-import {Controller, Get, INestApplication, Injectable, Logger, Module} from '@nestjs/common';
-import {Test} from '@nestjs/testing';
-import {AuthModule, Authorized, NoAuth, UserDetail, UserDetailService} from '../src';
+import { Controller, Get, INestApplication, Injectable, Logger, Module } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
+import { AuthModule, Authorized, NoAuth, UserDetail, UserDetailService } from '../src';
 import * as request from 'supertest';
 
 @Authorized('A')
 @Controller('tests')
 class TestController {
 
-    @NoAuth()
-    @Get()
-    forEveryone() {
-        return true;
-    }
+  @NoAuth()
+  @Get()
+  forEveryone() {
+    return true;
+  }
 
-    @Get('a')
-    forA() {
-        return true;
-    }
+  @Get('a')
+  forA() {
+    return true;
+  }
 
-    @Get('ab')
-    @Authorized(['A', 'B'])
-    forAnB() {
-        return true;
-    }
+  @Get('ab')
+  @Authorized(['A', 'B'])
+  forAnB() {
+    return true;
+  }
 
-    @Authorized('B')
-    @Get('b')
-    forB() {
-        return true;
-    }
+  @Authorized('B')
+  @Get('b')
+  forB() {
+    return true;
+  }
 
-    @Get('c')
-    @Authorized('C')
-    forC() {
-        return true;
-    }
+  @Get('c')
+  @Authorized('C')
+  forC() {
+    return true;
+  }
 }
 
 class User implements UserDetail {
-    id: number;
-    lastChangedAt: Date;
-    roles: string[];
-    username: string;
+  id: number;
+  lastChangedAt: Date;
+  roles: string[];
+  username: string;
 }
 
 @Injectable()
 class UserService extends UserDetailService {
-    async loadByUsername(username: string): Promise<User> {
-        logger.log(`loadByUsername ${username}`);
-        const user = new User();
-        user.id = username === 'su' ? 1 : 2;
-        user.username = username;
-        user.roles = ['A', 'B'];
-        user.lastChangedAt = new Date();
-        logger.log({
-            message: 'mock user',
-            user,
-            level: 'silly'
-        });
-        return user;
-    }
+  async loadByUsername(username: string): Promise<User> {
+    logger.log(`loadByUsername ${username}`);
+    const user = new User();
+    user.id = username === 'su' ? 1 : 2;
+    user.username = username;
+    user.roles = ['A', 'B'];
+    user.lastChangedAt = new Date();
+    logger.log({
+      message: 'mock user',
+      user,
+      level: 'silly',
+    });
+    return user;
+  }
 
-    async verifyPassword(user: User, raw: string): Promise<boolean> {
-        return true;
-    }
+  async verifyPassword(user: User, raw: string): Promise<boolean> {
+    return raw === 'test';
+  }
 }
 
 @Module({
-    providers: [UserService],
-    controllers: [TestController],
-    exports: [UserService],
+  providers: [UserService],
+  controllers: [TestController],
+  exports: [UserService],
 })
 class DemoModule {
 }
@@ -131,85 +131,92 @@ const logger = new Logger('AuthModule Tests');
 
 describe('AuthModule Tests', function() {
 
-    let app: INestApplication;
-    let token: string;
+  let app: INestApplication;
+  let token: string;
 
-    beforeAll(async () => {
-        const module = await Test.createTestingModule({
-            imports: [
-                DemoModule,
-                AuthModule.forRootAsync({
-                    useFactory: () => ({
-                        superUserId: 1
-                    }),
-                    UserDetailService: UserService,
-                    enabledController: true,
-                })]
-        }).compile();
+  beforeAll(async () => {
+    const module = await Test.createTestingModule({
+      imports: [
+        DemoModule,
+        AuthModule.forRootAsync({
+          useFactory: () => ({
+            bypassUser: user => user.id === 1,
+          }),
+          UserDetailService: UserService,
+          enabledController: true,
+        })],
+    }).compile();
 
-        app = module.createNestApplication();
-        await app.init();
-    });
+    app = module.createNestApplication();
+    await app.init();
+  });
 
-    beforeEach(async () => {
-        const res = await request(app.getHttpServer())
-            .post('/auth/login')
-            .send({username: 'test', password: 'test'});
+  beforeEach(async () => {
+    const res = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ username: 'test', password: 'test' });
 
-        token = res.body.token;
+    token = res.body.token;
 
-        logger.log({message: 'login', token, level: 'debug'});
-    });
+    logger.log({ message: 'login', token, level: 'debug' });
+  });
 
-    it('should access a', async () => {
-        await request(app.getHttpServer())
-            .get('/tests/a')
-            .auth(token, {type: 'bearer'})
-            .expect(200);
-    });
+  it('should access a', async () => {
+    await request(app.getHttpServer())
+      .get('/tests/a')
+      .auth(token, { type: 'bearer' })
+      .expect(200);
+  });
 
-    it('should access b', async () => {
-        await request(app.getHttpServer())
-            .get('/tests/b')
-            .auth('test', 'test')
-            .expect(200);
-    });
+  it('should access b', async () => {
+    await request(app.getHttpServer())
+      .get('/tests/b')
+      .auth('test', 'test')
+      .expect(200);
+  });
 
-    it('should access ab', async () => {
-        await request(app.getHttpServer())
-            .get('/tests/ab')
-            .auth(token, {type: 'bearer'})
-            .expect(200);
-    });
+  it('should access ab', async () => {
+    await request(app.getHttpServer())
+      .get('/tests/ab')
+      .auth(token, { type: 'bearer' })
+      .expect(200);
+  });
 
-    it('should not access c', async () => {
-        await request(app.getHttpServer())
-            .get('/tests/c')
-            .auth(token, {type: 'bearer'})
-            .expect(403);
-    });
+  it('should not access c', async () => {
+    await request(app.getHttpServer())
+      .get('/tests/c')
+      .auth(token, { type: 'bearer' })
+      .expect(403);
+  });
 
-    it('should require login', async () => {
-        await request(app.getHttpServer())
-            .get('/auth/me')
-            .expect(401);
-    });
+  it('should require login', async () => {
+    await request(app.getHttpServer())
+      .get('/auth/me')
+      .expect(401);
+  });
 
-    it('should access by everyone', async () => {
-        await request(app.getHttpServer())
-            .get('/tests/')
-            .expect(200);
+  it('should access by everyone', async () => {
+    await request(app.getHttpServer())
+      .get('/tests/')
+      .expect(200);
 
-        await request(app.getHttpServer())
-            .get('/tests/')
-            .auth(token, {type: 'bearer'})
-            .expect(200);
-    });
+    await request(app.getHttpServer())
+      .get('/tests/')
+      .auth(token, { type: 'bearer' })
+      .expect(200);
+  });
 
-    it('should su access', async () => {
-        await request(app.getHttpServer())
-            .get('/tests/c')
-            .auth('su', 'test')
-            .expect(200);
-    });
+  it('should su access', async () => {
+    await request(app.getHttpServer())
+      .get('/tests/c')
+      .auth('su', 'test')
+      .expect(200);
+  });
+
+  it('should not access with wrong pass', async () => {
+    await request(app.getHttpServer())
+      .get('/tests/b')
+      .auth('test', 'test1')
+      .expect(401);
+  });
 });
