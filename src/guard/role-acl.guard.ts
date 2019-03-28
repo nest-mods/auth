@@ -22,12 +22,12 @@
  * SOFTWARE.
  */
 
-import { CanActivate, ExecutionContext, Inject, Injectable, LoggerService, UnauthorizedException } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { AUTH_MODULE_OPTIONS, AuthActionType, METADATA_KEY_AUTH_ACTION, METADATA_KEY_AUTHORIZED } from '../constants';
-import * as _ from 'lodash';
-import { Log } from '@nest-mods/log';
-import { AuthModuleOptions } from '../interfaces';
+import { CanActivate, ExecutionContext, Inject, Injectable, LoggerService, UnauthorizedException } from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
+import { AUTH_MODULE_OPTIONS, AuthActionType, METADATA_KEY_AUTH_ACTION, METADATA_KEY_AUTHORIZED } from "../constants";
+import * as _ from "lodash";
+import { Log } from "@nest-mods/log";
+import { AuthModuleOptions } from "../interfaces";
 
 @Injectable()
 export class RoleAclGuard implements CanActivate {
@@ -39,15 +39,22 @@ export class RoleAclGuard implements CanActivate {
   }
 
   async canActivate(
-    context: ExecutionContext,
+    context: ExecutionContext
   ) {
 
     if (!this.options.useACL) {
-      this.logger.log({ message: 'ACL not enabled', level: 'silly' });
+      this.logger.log({ message: "ACL not enabled", level: "silly" });
       return true;
     }
 
     if (this.getMetadataByKey(context, METADATA_KEY_AUTH_ACTION) === AuthActionType.NO) {
+      return true;
+    }
+
+    const allowedRoles = this.getMetadataByKey<string[]>(context, METADATA_KEY_AUTHORIZED);
+
+    // 没有@Authorized
+    if (_.isUndefined(allowedRoles)) {
       return true;
     }
 
@@ -56,7 +63,12 @@ export class RoleAclGuard implements CanActivate {
     const user = request.user;
 
     if (!user) {
-      throw new UnauthorizedException('Please login');
+      throw new UnauthorizedException("Please login");
+    }
+
+    // @Authorized() 不限制角色
+    if (_.isEmpty(allowedRoles)) {
+      return true;
     }
 
     // this.logger.log({
@@ -70,16 +82,6 @@ export class RoleAclGuard implements CanActivate {
 
     // super user has all access
     if (!_.isNil(this.options.superUserId) && this.options.superUserId === user.id) {
-      return true;
-    }
-
-    const allowedRoles = this.getMetadataByKey<string[]>(context, METADATA_KEY_AUTHORIZED);
-
-    if (_.isUndefined(allowedRoles)) {
-      return true;
-    }
-
-    if (_.isEmpty(allowedRoles)) {
       return true;
     }
 
