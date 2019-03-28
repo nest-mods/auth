@@ -22,36 +22,40 @@
  * SOFTWARE.
  */
 
-import {ExtractJwt, Strategy as HttpJwtStrategy} from 'passport-jwt';
-import {AuthService} from '../service/auth.service';
-import {PassportStrategy} from '@nestjs/passport';
-import {Inject, Injectable, LoggerService} from '@nestjs/common';
-import {AuthModuleOptions, Callback, Payload, UserDetail} from '../interfaces';
-import {AUTH_MODULE_OPTIONS} from '../constants';
-import {Log} from '@nest-mods/log';
+import { ExtractJwt, Strategy as HttpJwtStrategy } from 'passport-jwt';
+import { AuthService } from '../service/auth.service';
+import { PassportStrategy } from '@nestjs/passport';
+import { Inject, Injectable, LoggerService } from '@nestjs/common';
+import { AuthModuleOptions, Callback, Payload, UserDetail } from '../interfaces';
+import { AUTH_MODULE_OPTIONS } from '../constants';
+import { Log } from '@nest-mods/log';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(HttpJwtStrategy) {
 
-    @Log() private logger: LoggerService;
+  @Log() private logger: LoggerService;
 
-    constructor(private readonly authService: AuthService,
-                @Inject(AUTH_MODULE_OPTIONS) private options: AuthModuleOptions) {
-        super({
-            jwtFromRequest: ExtractJwt.fromExtractors([
-                ExtractJwt.fromAuthHeaderAsBearerToken(),
-                ExtractJwt.fromUrlQueryParameter(options.jwtAuth.queryTokenKey),
-            ]),
-            secretOrKey: options.jwtAuth.secret,
-            issuer: options.jwtAuth.signOptions.issuer,
-            audience: options.jwtAuth.signOptions.audience,
-            passReqToCallback: false,
-        });
-    }
+  constructor(private readonly authService: AuthService,
+              @Inject(AUTH_MODULE_OPTIONS) private options: AuthModuleOptions) {
+    super({
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+        ExtractJwt.fromUrlQueryParameter(options.jwtAuth.queryTokenKey),
+      ]),
+      secretOrKey: options.jwtAuth.secret,
+      issuer: options.jwtAuth.signOptions.issuer,
+      audience: options.jwtAuth.signOptions.audience,
+      passReqToCallback: false,
+    });
+  }
 
-    async validate(payload: Payload, done: Callback<UserDetail>) {
-        this.logger.log({message: 'validate', payload, level: 'debug'});
-        const user = await this.authService.verifyByJwtUser(payload);
-        done(null, user);
+  async validate(payload: Payload, done: Callback<UserDetail>) {
+    this.logger.log({ message: 'validate', payload, level: 'debug' });
+    try {
+      const user = await this.authService.verifyByJwtUser(payload);
+      done(null, user);
+    } catch (e) {
+      done(e);
     }
+  }
 }
