@@ -22,21 +22,25 @@
  * SOFTWARE.
  */
 
-import {BasicStrategy as HttpBasicStrategy} from 'passport-http';
-import {AuthService} from '../service/auth.service';
-import {PassportStrategy} from '@nestjs/passport';
-import {Injectable} from '@nestjs/common';
-import {Callback, UserDetail} from '../interfaces';
+import { BasicStrategy as HttpBasicStrategy } from 'passport-http';
+import { AuthService } from '../service/auth.service';
+import { PassportStrategy } from '@nestjs/passport';
+import { Injectable } from '@nestjs/common';
+import { Callback, UserDetail } from '../interfaces';
 
 @Injectable()
 export class BasicStrategy extends PassportStrategy(HttpBasicStrategy) {
 
-    constructor(private readonly authService: AuthService) {
-        super();
-    }
+  constructor(private readonly authService: AuthService) {
+    super();
+  }
 
-    async validate(username: string, password: string, done: Callback<UserDetail>) {
-        const user = await this.authService.verifyByPass(username, password);
-        done(null, user);
+  async validate(username: string, password: string, done: Callback<UserDetail>) {
+    try {
+      const user = await this.authService.verifyByPass(username, password);
+      done(null, user);
+    } catch (e) {
+      done(e);
     }
+  }
 }
