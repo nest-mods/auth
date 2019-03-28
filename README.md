@@ -3,4 +3,4 @@
 
 Simple role based auth for nestjs
 
-install via npm `npm i @nest-mods/auth`
+install via npm `npm i @nest-mods/auth @nest-mods/log @nestjs/passport lodash`
