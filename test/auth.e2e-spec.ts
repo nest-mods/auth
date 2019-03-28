@@ -90,6 +90,14 @@ class TestController {
   }
 }
 
+@Controller('test2')
+class Test2Controller {
+  @Get()
+  forEveryone() {
+    return true;
+  }
+}
+
 class User implements UserDetail {
   id: number;
   lastChangedAt: Date;
@@ -121,7 +129,7 @@ class UserService extends UserDetailService {
 
 @Module({
   providers: [UserService],
-  controllers: [TestController],
+  controllers: [TestController, Test2Controller],
   exports: [UserService],
 })
 class DemoModule {
@@ -218,5 +226,11 @@ describe('AuthModule Tests', function() {
       .get('/tests/b')
       .auth('test', 'test1')
       .expect(401);
+  });
+
+  it('should access a public route', async () => {
+    await request(app.getHttpServer())
+      .get('/test2/')
+      .expect(200);
   });
 });
