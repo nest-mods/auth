@@ -1,6 +1,6 @@
 {
   "name": "@nest-mods/auth",
-  "version": "2.1.3",
+  "version": "2.2.0",
   "description": "simple role based auth for nestjs using passport",
   "license": "MIT",
   "repository": "https://github.com/nest-mods/auth",

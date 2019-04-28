@@ -22,16 +22,16 @@
  * SOFTWARE.
  */
 
-import * as jwt from 'jsonwebtoken';
-import { forwardRef, Inject, Injectable, LoggerService } from '@nestjs/common';
-import { AuthModuleOptions, Payload, UserDetail } from '../interfaces';
-import { AUTH_MODULE_OPTIONS } from '../constants';
-import { Log } from '@nest-mods/log';
-import { UserDetailService } from './user-detail.service';
-import { PasswordNotMatchException } from '../exception';
+import * as jwt from "jsonwebtoken";
+import { forwardRef, Inject, Injectable, LoggerService } from "@nestjs/common";
+import { AuthModuleOptions, Payload, UserDetail } from "../interfaces";
+import { AUTH_MODULE_OPTIONS } from "../constants";
+import { Log } from "@nest-mods/log";
+import { UserDetailService } from "./user-detail.service";
+import { PasswordNotMatchException } from "../exception";
 
 export enum AuthType {
-  PASSWORD = 'PASSWORD',
+  PASSWORD = "PASSWORD",
 }
 
 @Injectable()
@@ -44,32 +44,35 @@ export class AuthService {
   }
 
   async issueToken(user: UserDetail, authType: AuthType = AuthType.PASSWORD) {
-    this.logger.log({ message: `issueToken for ${user.username}`, level: 'debug' });
+    this.logger.log({ message: `issueToken for ${user.username}`, level: "debug" });
     const jwtConfig = this.options.jwtAuth;
 
     return jwt.sign({
       uid: user.id,
       sub: user.username,
       roles: user.roles,
-      authType,
+      authType
     }, jwtConfig.secret, jwtConfig.signOptions);
   }
 
   async verifyByPass(username: string, password: string) {
-    this.logger.log({ message: `verifyByPass for ${username}`, level: 'debug' });
+    this.logger.log({ message: `verifyByPass for ${username}`, level: "debug" });
     const user = await this.userService.loadByUsername(username);
 
     const pass = await this.userService.verifyPassword(user, password);
 
     if (!pass) {
+      await this.userService.loginFailed(user);
       throw new PasswordNotMatchException();
     }
+
+    await this.userService.loginSuccessful(user);
 
     return user;
   }
 
   async verifyByJwtUser(payload: Payload) {
-    this.logger.log({ message: `verifyByJwtUser for ${payload.sub}`, level: 'debug' });
+    this.logger.log({ message: `verifyByJwtUser for ${payload.sub}`, level: "debug" });
     const user = await this.userService.loadByUsername(payload.sub);
 
     return user;
