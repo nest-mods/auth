@@ -50,7 +50,7 @@
  *          ┗┻┛    ┗┻┛+ + + +
  * ----------- 永 无 BUG ------------
  */
-import { UserDetail } from "../interfaces";
+import { UserDetail } from '../interfaces';
 
 export abstract class UserDetailService<T extends UserDetail = UserDetail> {
   abstract async loadByUsername(username: string): Promise<T>;
@@ -58,6 +58,9 @@ export abstract class UserDetailService<T extends UserDetail = UserDetail> {
   abstract async verifyPassword(user: T, raw: string): Promise<boolean>;
 
   async loginSuccessful(user: T) {
+  }
+
+  async verifyJwtSuccessful(user: T) {
   }
 
   async loginFailed(user: T) {

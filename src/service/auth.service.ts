@@ -75,6 +75,8 @@ export class AuthService {
     this.logger.log({ message: `verifyByJwtUser for ${payload.sub}`, level: "debug" });
     const user = await this.userService.loadByUsername(payload.sub);
 
+    await this.userService.verifyJwtSuccessful(user);
+
     return user;
   }
 
