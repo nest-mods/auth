@@ -29,6 +29,7 @@ import { AUTH_MODULE_OPTIONS } from "../constants";
 import { Log } from "@nest-mods/log";
 import { UserDetailService } from "./user-detail.service";
 import { PasswordNotMatchException } from "../exception";
+import * as _ from "lodash";
 
 export enum AuthType {
   PASSWORD = "PASSWORD",
@@ -62,11 +63,15 @@ export class AuthService {
     const pass = await this.userService.verifyPassword(user, password);
 
     if (!pass) {
-      await this.userService.loginFailed(user);
+      if (_.isFunction(this.userService.loginFailed)) {
+        await this.userService.loginFailed(user);
+      }
       throw new PasswordNotMatchException();
     }
 
-    await this.userService.loginSuccessful(user);
+    if (_.isFunction(this.userService.loginSuccessful)) {
+      await this.userService.loginSuccessful(user);
+    }
 
     return user;
   }
@@ -75,7 +80,9 @@ export class AuthService {
     this.logger.log({ message: `verifyByJwtUser for ${payload.sub}`, level: "debug" });
     const user = await this.userService.loadByUsername(payload.sub);
 
-    await this.userService.verifyJwtSuccessful(user);
+    if (_.isFunction(this.userService.verifyJwtSuccessful)) {
+      await this.userService.verifyJwtSuccessful(user);
+    }
 
     return user;
   }
