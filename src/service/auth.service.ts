@@ -23,11 +23,10 @@
  */
 
 import * as jwt from "jsonwebtoken";
-import { forwardRef, Inject, Injectable, LoggerService } from "@nestjs/common";
-import { AuthModuleOptions, Payload, UserDetail } from "../interfaces";
+import { Inject, Injectable, LoggerService } from "@nestjs/common";
+import { AuthModuleOptions, Payload, UserDetail, UserDetailService } from "../interfaces";
 import { AUTH_MODULE_OPTIONS } from "../constants";
 import { Log } from "@nest-mods/log";
-import { UserDetailService } from "./user-detail.service";
 import { PasswordNotMatchException } from "../exception";
 import * as _ from "lodash";
 
@@ -40,8 +39,13 @@ export class AuthService {
 
   @Log() private logger: LoggerService;
 
-  constructor(@Inject(AUTH_MODULE_OPTIONS) private options: AuthModuleOptions,
-              @Inject(forwardRef(() => UserDetailService)) private userService: UserDetailService) {
+  private userService: UserDetailService;
+
+  constructor(@Inject(AUTH_MODULE_OPTIONS) private options: AuthModuleOptions) {
+    if (!options.service) {
+      throw new Error("You MUST provide UserDetailService implement");
+    }
+    this.userService = options.service;
   }
 
   async issueToken(user: UserDetail, authType: AuthType = AuthType.PASSWORD) {

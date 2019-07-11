@@ -112,7 +112,7 @@ class User implements UserDetail {
 }
 
 @Injectable()
-class UserService extends UserDetailService {
+class UserService implements UserDetailService {
   async loadByUsername(username: string): Promise<User> {
     logger.log(`loadByUsername ${username}`);
     const user = new User();
@@ -153,11 +153,13 @@ describe("AuthModule Tests", function() {
       imports: [
         DemoModule,
         AuthModule.forRootAsync({
-          useFactory: () => ({
+          useFactory: (service) => ({
+            service,
             bypassUser: user => user.id === 1
           }),
-          UserDetailService: UserService,
-          enabledController: true
+          enabledController: true,
+          inject: [UserService],
+          imports: [DemoModule]
         })]
     }).compile();
 

@@ -24,7 +24,6 @@
 
 export * from './auth.module';
 export * from './interfaces';
-export * from './service/user-detail.service';
 export * from './service/auth.service';
 export * from './exception';
 export * from './decorator';

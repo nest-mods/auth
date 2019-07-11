@@ -22,16 +22,27 @@
  * SOFTWARE.
  */
 
-import { AuthActionType } from './constants';
-import { SignOptions } from 'jsonwebtoken';
-import { ModuleMetadata, Type } from '@nestjs/common/interfaces';
-import { UserDetailService } from './service/user-detail.service';
+import { AuthActionType } from "./constants";
+import { SignOptions } from "jsonwebtoken";
+import { ModuleMetadata } from "@nestjs/common/interfaces";
 
 export interface UserDetail {
   id?: number;
   username: string;
   roles: string[];
   lastChangedAt: Date;
+}
+
+export interface UserDetailService<T extends UserDetail = UserDetail> {
+  loadByUsername(username: string): Promise<T>;
+
+  verifyPassword(user: T, raw: string): Promise<boolean>;
+
+  loginSuccessful?(user: T): Promise<void>;
+
+  verifyJwtSuccessful?(user: T): Promise<void>;
+
+  loginFailed?(user: T): Promise<void>;
 }
 
 export interface AuthModuleOptions {
@@ -43,6 +54,7 @@ export interface AuthModuleOptions {
    */
   superUserId?: number;
   bypassUser?: (user: UserDetail) => Promise<boolean> | boolean;
+  service: UserDetailService,
   basicAuth?: {
     defaultAuthAction?: AuthActionType,
   };
@@ -54,10 +66,9 @@ export interface AuthModuleOptions {
   };
 }
 
-export interface AuthModuleAsyncOptions extends Pick<ModuleMetadata, 'imports'> {
+export interface AuthModuleAsyncOptions extends Pick<ModuleMetadata, "imports"> {
   useFactory?: (...args: any[]) => Promise<AuthModuleOptions> | AuthModuleOptions;
   inject?: any[];
-  UserDetailService: Type<UserDetailService>;
   enabledController?: boolean;
 }
 

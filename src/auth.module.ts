@@ -22,73 +22,69 @@
  * SOFTWARE.
  */
 
-import {DynamicModule, Global, LoggerService, Module} from '@nestjs/common';
-import * as _ from 'lodash';
-import {APP_GUARD} from '@nestjs/core';
-import {AuthJwtGuard} from './guard/auth-jwt.guard';
-import {AuthBasicGuard} from './guard/auth-basic.guard';
-import {AuthModuleAsyncOptions, AuthModuleOptions} from './interfaces';
-import {AuthController} from './controller/auth.controller';
-import {RoleAclGuard} from './guard/role-acl.guard';
-import {AUTH_MODULE_OPTIONS, AuthActionType} from './constants';
-import {Log} from '@nest-mods/log';
-import {UserDetailService} from './service/user-detail.service';
-import {JwtStrategy} from './strategy/jwt.strategy';
-import {BasicStrategy} from './strategy/basic.strategy';
-import {AuthService} from './service/auth.service';
+import { DynamicModule, Global, LoggerService, Module } from "@nestjs/common";
+import * as _ from "lodash";
+import { APP_GUARD } from "@nestjs/core";
+import { AuthJwtGuard } from "./guard/auth-jwt.guard";
+import { AuthBasicGuard } from "./guard/auth-basic.guard";
+import { AuthModuleAsyncOptions, AuthModuleOptions } from "./interfaces";
+import { AuthController } from "./controller/auth.controller";
+import { RoleAclGuard } from "./guard/role-acl.guard";
+import { AUTH_MODULE_OPTIONS, AuthActionType } from "./constants";
+import { Log } from "@nest-mods/log";
+import { JwtStrategy } from "./strategy/jwt.strategy";
+import { BasicStrategy } from "./strategy/basic.strategy";
+import { AuthService } from "./service/auth.service";
 
 const defaultAuthConfig: Partial<AuthModuleOptions> = {
-    useJwt: true,
-    useBasic: true,
-    useACL: true,
-    basicAuth: {
-        defaultAuthAction: AuthActionType.TRY,
-    },
-    jwtAuth: {
-        defaultAuthAction: AuthActionType.TRY,
-        queryTokenKey: 'token',
-        secret: 'DEFAULT_PASSWORD',
-        signOptions: {
-            expiresIn: '7d',
-            audience: 'demo',
-            issuer: 'demo',
-        },
-    },
+  useJwt: true,
+  useBasic: true,
+  useACL: true,
+  basicAuth: {
+    defaultAuthAction: AuthActionType.TRY
+  },
+  jwtAuth: {
+    defaultAuthAction: AuthActionType.TRY,
+    queryTokenKey: "token",
+    secret: "DEFAULT_PASSWORD",
+    signOptions: {
+      expiresIn: "7d",
+      audience: "demo",
+      issuer: "demo"
+    }
+  }
 };
 
 @Global()
 @Module({
-    providers: [AuthService, JwtStrategy, BasicStrategy, {
-        provide: APP_GUARD,
-        useClass: AuthBasicGuard,
-    }, {
-        provide: APP_GUARD,
-        useClass: AuthJwtGuard,
-    }, {
-        provide: APP_GUARD,
-        useClass: RoleAclGuard,
-    }],
-    exports: [AuthService],
+  providers: [AuthService, JwtStrategy, BasicStrategy, {
+    provide: APP_GUARD,
+    useClass: AuthBasicGuard
+  }, {
+    provide: APP_GUARD,
+    useClass: AuthJwtGuard
+  }, {
+    provide: APP_GUARD,
+    useClass: RoleAclGuard
+  }],
+  exports: [AuthService]
 })
 export class AuthModule {
-    @Log() private static logger: LoggerService;
+  @Log() private static logger: LoggerService;
 
-    static forRootAsync(options: AuthModuleAsyncOptions): DynamicModule {
-        return {
-            module: AuthModule,
-            imports: options.imports,
-            providers: [{
-                provide: AUTH_MODULE_OPTIONS,
-                inject: options.inject,
-                useFactory: async (...args) => {
-                    const opts = await options.useFactory(...args);
-                    return _.defaultsDeep(opts, defaultAuthConfig);
-                },
-            }, {
-                provide: UserDetailService,
-                useClass: options.UserDetailService,
-            }],
-            controllers: options.enabledController ? [AuthController] : [],
-        };
-    }
+  static forRootAsync(options: AuthModuleAsyncOptions): DynamicModule {
+    return {
+      module: AuthModule,
+      imports: options.imports,
+      providers: [{
+        provide: AUTH_MODULE_OPTIONS,
+        inject: options.inject,
+        useFactory: async (...args) => {
+          const opts = await options.useFactory(...args);
+          return _.defaultsDeep(opts, defaultAuthConfig);
+        }
+      }],
+      controllers: options.enabledController ? [AuthController] : []
+    };
+  }
 }
