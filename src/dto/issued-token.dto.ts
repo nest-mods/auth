@@ -50,14 +50,14 @@
  *          ┗┻┛    ┗┻┛+ + + +
  * ----------- 永 无 BUG ------------
  */
-import { setSwaggerModelProperty } from '@nest-mods/swagger-helper';
+import { SwaggerDecorators } from "@nest-mods/swagger-helper";
+import ApiModelProperty = SwaggerDecorators.ApiModelProperty;
 
 export class IssuedTokenDto {
+  @ApiModelProperty({
+    type: String,
+    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.tMGtimwSRSYwLuCdtG_fnPklKkSprwyvgXD0lV3Yr8Q",
+    description: "jwt token"
+  })
   token: string;
 }
-
-setSwaggerModelProperty(IssuedTokenDto, 'token', {
-  type: String,
-  example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.tMGtimwSRSYwLuCdtG_fnPklKkSprwyvgXD0lV3Yr8Q',
-  description: 'jwt token',
-});

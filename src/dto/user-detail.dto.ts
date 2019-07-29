@@ -50,31 +50,34 @@
  *          ┗┻┛    ┗┻┛+ + + +
  * ----------- 永 无 BUG ------------
  */
-import { UserDetail } from '../interfaces';
-import { setSwaggerModelProperty } from '@nest-mods/swagger-helper';
+import { SwaggerDecorators } from "@nest-mods/swagger-helper";
+import { UserDetail } from "../interfaces";
+import ApiModelProperty = SwaggerDecorators.ApiModelProperty;
 
 export class UserDetailDto implements UserDetail {
+  @ApiModelProperty({
+    type: "integer",
+    description: "id"
+  })
   id: number;
+
+  @ApiModelProperty({
+    type: "string",
+    format: "date-time",
+    description: "lastChangedAt"
+  })
   lastChangedAt: Date;
+
+  @ApiModelProperty({
+    type: String,
+    isArray: true,
+    description: "roles"
+  })
   roles: string[];
+
+  @ApiModelProperty({
+    type: String,
+    description: "username"
+  })
   username: string;
 }
-
-setSwaggerModelProperty(UserDetailDto, 'id', {
-  type: 'integer',
-  description: 'id',
-});
-setSwaggerModelProperty(UserDetailDto, 'lastChangedAt', {
-  type: 'string',
-  format: 'date-time',
-  description: 'lastChangedAt',
-});
-setSwaggerModelProperty(UserDetailDto, 'roles', {
-  type: String,
-  isArray: true,
-  description: 'roles',
-});
-setSwaggerModelProperty(UserDetailDto, 'username', {
-  type: String,
-  description: 'username',
-});
