@@ -1,6 +1,6 @@
 {
   "name": "@nest-mods/auth",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "simple role based auth for nestjs using passport",
   "license": "MIT",
   "repository": "https://github.com/nest-mods/auth",
@@ -54,7 +54,7 @@
     "winston": "^3.2.1"
   },
   "dependencies": {
-    "@nest-mods/swagger-helper": "^1.2.3",
+    "@nest-mods/swagger-helper": "^2",
     "class-transformer": "^0.2.3",
     "class-validator": "^0.9.1",
     "passport": "^0.4.0",
