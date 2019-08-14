@@ -50,11 +50,11 @@
  *          ┗┻┛    ┗┻┛+ + + +
  * ----------- 永 无 BUG ------------
  */
-import {BadRequestException} from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 
 export class UserDisabledException extends BadRequestException {
-    constructor(message: string = '用户已禁用') {
-        super(message, 'UserDisabledException');
-        Error.captureStackTrace(this, this.constructor);
-    }
+  constructor(message: string = '用户已禁用') {
+    super(message, 'UserDisabledException');
+    Error.captureStackTrace(this, this.constructor);
+  }
 }

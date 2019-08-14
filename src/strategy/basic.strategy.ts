@@ -22,11 +22,11 @@
  * SOFTWARE.
  */
 
-import { BasicStrategy as HttpBasicStrategy } from 'passport-http';
-import { AuthService } from '../service/auth.service';
-import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { BasicStrategy as HttpBasicStrategy } from 'passport-http';
 import { Callback, UserDetail } from '../interfaces';
+import { AuthService } from '../service/auth.service';
 
 @Injectable()
 export class BasicStrategy extends PassportStrategy(HttpBasicStrategy) {

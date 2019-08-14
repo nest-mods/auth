@@ -22,22 +22,22 @@
  * SOFTWARE.
  */
 
-import {createParamDecorator, UnauthorizedException} from '@nestjs/common';
+import { createParamDecorator, UnauthorizedException } from '@nestjs/common';
 
 export interface CurrentUserOptions {
-    /**
-     * 必须存在
-     */
-    required?: boolean;
+  /**
+   * 必须存在
+   */
+  required?: boolean;
 }
 
 /**
  * 获取当前用户
  */
 export const CurrentUser: (options?: CurrentUserOptions) => ParameterDecorator = createParamDecorator((options: CurrentUserOptions = {}, req) => {
-    const user = req.user;
-    if (options.required && !user) {
-        throw new UnauthorizedException();
-    }
-    return user;
+  const user = req.user;
+  if (options.required && !user) {
+    throw new UnauthorizedException();
+  }
+  return user;
 });

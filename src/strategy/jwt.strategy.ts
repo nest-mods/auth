@@ -22,18 +22,18 @@
  * SOFTWARE.
  */
 
-import { ExtractJwt, Strategy as HttpJwtStrategy } from 'passport-jwt';
-import { AuthService } from '../service/auth.service';
-import { PassportStrategy } from '@nestjs/passport';
-import { Inject, Injectable, LoggerService } from '@nestjs/common';
-import { AuthModuleOptions, Callback, Payload, UserDetail } from '../interfaces';
-import { AUTH_MODULE_OPTIONS } from '../constants';
 import { Log } from '@nest-mods/log';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { ExtractJwt, Strategy as HttpJwtStrategy } from 'passport-jwt';
+import { AUTH_MODULE_OPTIONS, LOG_PREFIX } from '../constants';
+import { AuthModuleOptions, Callback, Payload, UserDetail } from '../interfaces';
+import { AuthService } from '../service/auth.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(HttpJwtStrategy) {
 
-  @Log() private logger: LoggerService;
+  @Log(LOG_PREFIX) private logger: Logger;
 
   constructor(private readonly authService: AuthService,
               @Inject(AUTH_MODULE_OPTIONS) private options: AuthModuleOptions) {
@@ -50,7 +50,7 @@ export class JwtStrategy extends PassportStrategy(HttpJwtStrategy) {
   }
 
   async validate(payload: Payload, done: Callback<UserDetail>) {
-    this.logger.log({ message: 'validate', payload, level: 'debug' });
+    this.logger.debug({ message: 'validate', payload });
     try {
       const user = await this.authService.verifyByJwtUser(payload);
       done(null, user);

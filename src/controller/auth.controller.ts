@@ -22,46 +22,47 @@
  * SOFTWARE.
  */
 
-import { Log } from "@nest-mods/log";
-import { SwaggerDecorators } from "@nest-mods/swagger-helper";
-import { Body, Controller, Get, HttpCode, HttpStatus, LoggerService, Post, ValidationPipe } from "@nestjs/common";
-import { Authorized, CurrentUser, NoAuth } from "../decorator";
-import { IssuedTokenDto } from "../dto/issued-token.dto";
-import { LoginDto } from "../dto/login.dto";
-import { UserDetailDto } from "../dto/user-detail.dto";
-import { UserDetail } from "../interfaces";
-import { AuthService } from "../service/auth.service";
+import { Log } from '@nest-mods/log';
+import { SwaggerDecorators } from '@nest-mods/swagger-helper';
+import { Body, Controller, Get, HttpCode, HttpStatus, Logger, Post, ValidationPipe } from '@nestjs/common';
+import { LOG_PREFIX } from '../constants';
+import { Authorized, CurrentUser, NoAuth } from '../decorator';
+import { IssuedTokenDto } from '../dto/issued-token.dto';
+import { LoginDto } from '../dto/login.dto';
+import { UserDetailDto } from '../dto/user-detail.dto';
+import { UserDetail } from '../interfaces';
+import { AuthService } from '../service/auth.service';
 import ApiOkResponse = SwaggerDecorators.ApiOkResponse;
 import ApiOperation = SwaggerDecorators.ApiOperation;
 import ApiUseTags = SwaggerDecorators.ApiUseTags;
 
-@ApiUseTags("@nest-mods/auth")
-@Controller("auth")
+@ApiUseTags('@nest-mods/auth')
+@Controller('auth')
 export class AuthController {
 
-  @Log() private logger: LoggerService;
+  @Log(LOG_PREFIX) private logger: Logger;
 
   constructor(private authService: AuthService) {
   }
 
-  @ApiOperation({ title: "login", description: "login for a jwt token" })
-  @ApiOkResponse({ type: IssuedTokenDto, description: "issued jwt token" })
+  @ApiOperation({ title: 'login', description: 'login for a jwt token' })
+  @ApiOkResponse({ type: IssuedTokenDto, description: 'issued jwt token' })
   @NoAuth()
   @HttpCode(HttpStatus.OK)
-  @Post("login")
+  @Post('login')
   async login(@Body(new ValidationPipe()) form: LoginDto) {
-    this.logger.log({ message: `${form.username} is logging in`, level: "debug" });
+    this.logger.debug(`${form.username} is logging in`);
     const user = await this.authService.verifyByPass(form.username, form.password);
     const token = await this.authService.issueToken(user);
     return { token };
   }
 
-  @ApiOperation({ title: "current user info", description: "get current user info" })
-  @ApiOkResponse({ type: UserDetailDto, description: "partial current user" })
+  @ApiOperation({ title: 'current user info', description: 'get current user info' })
+  @ApiOkResponse({ type: UserDetailDto, description: 'partial current user' })
   @Authorized()
-  @Get("me")
+  @Get('me')
   async me(@CurrentUser({ required: true }) user: UserDetail) {
-    this.logger.log({ message: "me", user, level: "silly" });
+    this.logger.verbose({ message: 'me', user });
     return user;
   }
 

@@ -23,8 +23,8 @@
  */
 
 import { SetMetadata } from '@nestjs/common';
-import { METADATA_KEY_AUTHORIZED } from '../constants';
 import * as _ from 'lodash';
+import { METADATA_KEY_AUTHORIZED } from '../constants';
 
 export const Authorized = (...roles: any[]) => {
   return SetMetadata(METADATA_KEY_AUTHORIZED, _.uniq(_.compact(_.flattenDeep(roles))));

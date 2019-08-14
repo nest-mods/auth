@@ -50,12 +50,12 @@
  *          ┗┻┛    ┗┻┛+ + + +
  * ----------- 永 无 BUG ------------
  */
-import {Observable} from 'rxjs';
+import { Observable } from 'rxjs';
 
 export async function resolveAny<T = any>(o: Observable<T> | Promise<T> | T): Promise<T> {
-    if (o instanceof Observable) {
-        return await o.toPromise();
-    } else {
-        return await o;
-    }
+  if (o instanceof Observable) {
+    return await o.toPromise();
+  } else {
+    return await o;
+  }
 }

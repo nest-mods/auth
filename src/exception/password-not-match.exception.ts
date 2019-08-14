@@ -50,11 +50,11 @@
  *          ┗┻┛    ┗┻┛+ + + +
  * ----------- 永 无 BUG ------------
  */
-import {BadRequestException} from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 
 export class PasswordNotMatchException extends BadRequestException {
-    constructor(message: string = '密码不匹配') {
-        super(message, 'PasswordNotMatchException');
-        Error.captureStackTrace(this, this.constructor);
-    }
+  constructor(message: string = '密码不匹配') {
+    super(message, 'PasswordNotMatchException');
+    Error.captureStackTrace(this, this.constructor);
+  }
 }

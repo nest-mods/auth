@@ -51,13 +51,14 @@
  * ----------- 永 无 BUG ------------
  */
 
-import { Controller, Get, INestApplication, Injectable, Logger, Module } from "@nestjs/common";
-import { Test } from "@nestjs/testing";
-import { AuthModule, Authorized, NoAuth, UserDetail, UserDetailService } from "../src";
-import * as request from "supertest";
+import { LogModule } from '@nest-mods/log';
+import { Controller, Get, INestApplication, Injectable, Logger, Module } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
+import * as request from 'supertest';
+import { AuthModule, Authorized, NoAuth, UserDetail, UserDetailService } from '../src';
 
-@Authorized("A")
-@Controller("tests")
+@Authorized('A')
+@Controller('tests')
 class TestController {
 
   @NoAuth()
@@ -66,31 +67,31 @@ class TestController {
     return true;
   }
 
-  @Get("a")
+  @Get('a')
   forA() {
     return true;
   }
 
-  @Get("ab")
-  @Authorized(["A", "B"])
+  @Get('ab')
+  @Authorized(['A', 'B'])
   forAnB() {
     return true;
   }
 
-  @Authorized("B")
-  @Get("b")
+  @Authorized('B')
+  @Get('b')
   forB() {
     return true;
   }
 
-  @Get("c")
-  @Authorized("C")
+  @Get('c')
+  @Authorized('C')
   forC() {
     return true;
   }
 }
 
-@Controller("test2")
+@Controller('test2')
 class Test2Controller {
   @Get()
   forEveryone() {
@@ -98,7 +99,7 @@ class Test2Controller {
   }
 
   @Authorized()
-  @Get("need-login")
+  @Get('need-login')
   needLogin() {
     return true;
   }
@@ -116,34 +117,34 @@ class UserService implements UserDetailService {
   async loadByUsername(username: string): Promise<User> {
     logger.log(`loadByUsername ${username}`);
     const user = new User();
-    user.id = username === "su" ? 1 : 2;
+    user.id = username === 'su' ? 1 : 2;
     user.username = username;
-    user.roles = ["A", "B"];
+    user.roles = ['A', 'B'];
     user.lastChangedAt = new Date();
     logger.log({
-      message: "mock user",
+      message: 'mock user',
       user,
-      level: "silly"
+      level: 'silly',
     });
     return user;
   }
 
   async verifyPassword(user: User, raw: string): Promise<boolean> {
-    return raw === "test";
+    return raw === 'test';
   }
 }
 
 @Module({
   providers: [UserService],
   controllers: [TestController, Test2Controller],
-  exports: [UserService]
+  exports: [UserService],
 })
 class DemoModule {
 }
 
-const logger = new Logger("AuthModule Tests");
+const logger = new Logger('AuthModule Tests');
 jest.setTimeout(1000000);
-describe("AuthModule Tests", function() {
+describe('AuthModule Tests', function() {
 
   let app: INestApplication;
   let token: string;
@@ -151,16 +152,17 @@ describe("AuthModule Tests", function() {
   beforeAll(async () => {
     const module = await Test.createTestingModule({
       imports: [
+        LogModule,
         DemoModule,
         AuthModule.forRootAsync({
           useFactory: (service) => ({
             service,
-            bypassUser: user => user.id === 1
+            bypassUser: user => user.id === 1,
           }),
           enabledController: true,
           inject: [UserService],
-          imports: [DemoModule]
-        })]
+          imports: [DemoModule],
+        })],
     }).compile();
 
     app = module.createNestApplication();
@@ -169,89 +171,89 @@ describe("AuthModule Tests", function() {
 
   beforeEach(async () => {
     const res = await request(app.getHttpServer())
-      .post("/auth/login")
-      .send({ username: "test", password: "test" });
+      .post('/auth/login')
+      .send({ username: 'test', password: 'test' });
 
     token = res.body.token;
 
-    logger.log({ message: "login", token, level: "debug" });
+    logger.log({ message: 'login', token, level: 'debug' });
   });
 
-  it("should access a", async () => {
+  it('should access a', async () => {
     await request(app.getHttpServer())
-      .get("/tests/a")
-      .auth(token, { type: "bearer" })
+      .get('/tests/a')
+      .auth(token, { type: 'bearer' })
       .expect(200);
   });
 
-  it("should access b", async () => {
+  it('should access b', async () => {
     await request(app.getHttpServer())
-      .get("/tests/b")
-      .auth("test", "test")
+      .get('/tests/b')
+      .auth('test', 'test')
       .expect(200);
   });
 
-  it("should access ab", async () => {
+  it('should access ab', async () => {
     await request(app.getHttpServer())
-      .get("/tests/ab")
-      .auth(token, { type: "bearer" })
+      .get('/tests/ab')
+      .auth(token, { type: 'bearer' })
       .expect(200);
   });
 
-  it("should not access c", async () => {
+  it('should not access c', async () => {
     await request(app.getHttpServer())
-      .get("/tests/c")
-      .auth(token, { type: "bearer" })
+      .get('/tests/c')
+      .auth(token, { type: 'bearer' })
       .expect(403);
   });
 
-  it("should require login", async () => {
+  it('should require login', async () => {
     await request(app.getHttpServer())
-      .get("/auth/me")
+      .get('/auth/me')
       .expect(401);
   });
 
-  it("should access by everyone", async () => {
+  it('should access by everyone', async () => {
     await request(app.getHttpServer())
-      .get("/tests/")
+      .get('/tests/')
       .expect(200);
 
     await request(app.getHttpServer())
-      .get("/tests/")
-      .auth(token, { type: "bearer" })
-      .expect(200);
-  });
-
-  it("should su access", async () => {
-    await request(app.getHttpServer())
-      .get("/tests/c")
-      .auth("su", "test")
+      .get('/tests/')
+      .auth(token, { type: 'bearer' })
       .expect(200);
   });
 
-  it("should not access with wrong pass", async () => {
+  it('should su access', async () => {
     await request(app.getHttpServer())
-      .get("/tests/b")
-      .auth("test", "test1")
+      .get('/tests/c')
+      .auth('su', 'test')
+      .expect(200);
+  });
+
+  it('should not access with wrong pass', async () => {
+    await request(app.getHttpServer())
+      .get('/tests/b')
+      .auth('test', 'test1')
       .expect(401);
   });
 
-  it("should access a public route", async () => {
+  it('should access a public route', async () => {
     await request(app.getHttpServer())
-      .get("/test2/")
+      .get('/test2/')
       .expect(200);
   });
 
-  it("should not access without login", async () => {
+  it('should not access without login', async () => {
     await request(app.getHttpServer())
-      .get("/test2/need-login")
+      .get('/test2/need-login')
       .expect(401);
   });
 
-  it("should access with login", async () => {
+  it('should access with login', async () => {
     await request(app.getHttpServer())
-      .get("/test2/need-login")
-      .auth("test", "test")
+      .get('/test2/need-login')
+      .auth('test', 'test')
       .expect(200);
   });
 });

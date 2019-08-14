@@ -50,34 +50,34 @@
  *          ┗┻┛    ┗┻┛+ + + +
  * ----------- 永 无 BUG ------------
  */
-import { SwaggerDecorators } from "@nest-mods/swagger-helper";
-import { UserDetail } from "../interfaces";
+import { SwaggerDecorators } from '@nest-mods/swagger-helper';
+import { UserDetail } from '../interfaces';
 import ApiModelProperty = SwaggerDecorators.ApiModelProperty;
 
 export class UserDetailDto implements UserDetail {
   @ApiModelProperty({
-    type: "integer",
-    description: "id"
+    type: 'integer',
+    description: 'id',
   })
   id: number;
 
   @ApiModelProperty({
-    type: "string",
-    format: "date-time",
-    description: "lastChangedAt"
+    type: 'string',
+    format: 'date-time',
+    description: 'lastChangedAt',
   })
   lastChangedAt: Date;
 
   @ApiModelProperty({
     type: String,
     isArray: true,
-    description: "roles"
+    description: 'roles',
   })
   roles: string[];
 
   @ApiModelProperty({
     type: String,
-    description: "username"
+    description: 'username',
   })
   username: string;
 }

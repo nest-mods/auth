@@ -22,9 +22,9 @@
  * SOFTWARE.
  */
 
-import { AuthActionType } from "./constants";
-import { SignOptions } from "jsonwebtoken";
-import { ModuleMetadata } from "@nestjs/common/interfaces";
+import { ModuleMetadata } from '@nestjs/common/interfaces';
+import { SignOptions } from 'jsonwebtoken';
+import { AuthActionType } from './constants';
 
 export interface UserDetail {
   id?: number;
@@ -66,7 +66,7 @@ export interface AuthModuleOptions {
   };
 }
 
-export interface AuthModuleAsyncOptions extends Pick<ModuleMetadata, "imports"> {
+export interface AuthModuleAsyncOptions extends Pick<ModuleMetadata, 'imports'> {
   useFactory?: (...args: any[]) => Promise<AuthModuleOptions> | AuthModuleOptions;
   inject?: any[];
   enabledController?: boolean;

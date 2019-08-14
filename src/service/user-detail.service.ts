@@ -50,7 +50,7 @@
  *          ┗┻┛    ┗┻┛+ + + +
  * ----------- 永 无 BUG ------------
  */
-import { UserDetail } from "../interfaces";
+import { UserDetail } from '../interfaces';
 
 export abstract class UserDetailService<T extends UserDetail = UserDetail> {
   abstract async loadByUsername(username: string): Promise<T>;

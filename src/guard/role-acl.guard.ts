@@ -22,28 +22,34 @@
  * SOFTWARE.
  */
 
-import { CanActivate, ExecutionContext, Inject, Injectable, LoggerService, UnauthorizedException } from "@nestjs/common";
-import { Reflector } from "@nestjs/core";
-import { AUTH_MODULE_OPTIONS, AuthActionType, METADATA_KEY_AUTH_ACTION, METADATA_KEY_AUTHORIZED } from "../constants";
-import * as _ from "lodash";
-import { Log } from "@nest-mods/log";
-import { AuthModuleOptions } from "../interfaces";
+import { Log } from '@nest-mods/log';
+import { CanActivate, ExecutionContext, Inject, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import * as _ from 'lodash';
+import {
+  AUTH_MODULE_OPTIONS,
+  AuthActionType,
+  LOG_PREFIX,
+  METADATA_KEY_AUTH_ACTION,
+  METADATA_KEY_AUTHORIZED,
+} from '../constants';
+import { AuthModuleOptions } from '../interfaces';
 
 @Injectable()
 export class RoleAclGuard implements CanActivate {
 
-  @Log() private logger: LoggerService;
+  @Log(LOG_PREFIX) private logger: Logger;
 
   constructor(private readonly reflector: Reflector,
               @Inject(AUTH_MODULE_OPTIONS) private options: AuthModuleOptions) {
   }
 
   async canActivate(
-    context: ExecutionContext
+    context: ExecutionContext,
   ) {
 
     if (!this.options.useACL) {
-      this.logger.log({ message: "ACL not enabled", level: "silly" });
+      this.logger.verbose('ACL not enabled');
       return true;
     }
 
@@ -63,7 +69,7 @@ export class RoleAclGuard implements CanActivate {
     const user = request.user;
 
     if (!user) {
-      throw new UnauthorizedException("Please login");
+      throw new UnauthorizedException('Please login');
     }
 
     // @Authorized() 不限制角色
@@ -82,7 +88,7 @@ export class RoleAclGuard implements CanActivate {
 
     // super user has all access
     if (!_.isNil(this.options.superUserId)) {
-      this.logger.warn("superUserId is deprecated, use bypassUser instead");
+      this.logger.warn('superUserId is deprecated, use bypassUser instead');
       if (this.options.superUserId === user.id) {
         return true;
       }

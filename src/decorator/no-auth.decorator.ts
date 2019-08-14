@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-import {AuthAction} from './auth-action.decorator';
-import {AuthActionType} from '../constants';
+import { AuthActionType } from '../constants';
+import { AuthAction } from './auth-action.decorator';
 
 export const NoAuth = () => AuthAction(AuthActionType.NO);

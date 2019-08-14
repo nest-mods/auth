@@ -22,52 +22,52 @@
  * SOFTWARE.
  */
 
-import { DynamicModule, Global, LoggerService, Module } from "@nestjs/common";
-import * as _ from "lodash";
-import { APP_GUARD } from "@nestjs/core";
-import { AuthJwtGuard } from "./guard/auth-jwt.guard";
-import { AuthBasicGuard } from "./guard/auth-basic.guard";
-import { AuthModuleAsyncOptions, AuthModuleOptions } from "./interfaces";
-import { AuthController } from "./controller/auth.controller";
-import { RoleAclGuard } from "./guard/role-acl.guard";
-import { AUTH_MODULE_OPTIONS, AuthActionType } from "./constants";
-import { Log } from "@nest-mods/log";
-import { JwtStrategy } from "./strategy/jwt.strategy";
-import { BasicStrategy } from "./strategy/basic.strategy";
-import { AuthService } from "./service/auth.service";
+import { Log } from '@nest-mods/log';
+import { DynamicModule, Global, LoggerService, Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import * as _ from 'lodash';
+import { AUTH_MODULE_OPTIONS, AuthActionType } from './constants';
+import { AuthController } from './controller/auth.controller';
+import { AuthBasicGuard } from './guard/auth-basic.guard';
+import { AuthJwtGuard } from './guard/auth-jwt.guard';
+import { RoleAclGuard } from './guard/role-acl.guard';
+import { AuthModuleAsyncOptions, AuthModuleOptions } from './interfaces';
+import { AuthService } from './service/auth.service';
+import { BasicStrategy } from './strategy/basic.strategy';
+import { JwtStrategy } from './strategy/jwt.strategy';
 
 const defaultAuthConfig: Partial<AuthModuleOptions> = {
   useJwt: true,
   useBasic: true,
   useACL: true,
   basicAuth: {
-    defaultAuthAction: AuthActionType.TRY
+    defaultAuthAction: AuthActionType.TRY,
   },
   jwtAuth: {
     defaultAuthAction: AuthActionType.TRY,
-    queryTokenKey: "token",
-    secret: "DEFAULT_PASSWORD",
+    queryTokenKey: 'token',
+    secret: 'DEFAULT_PASSWORD',
     signOptions: {
-      expiresIn: "7d",
-      audience: "demo",
-      issuer: "demo"
-    }
-  }
+      expiresIn: '7d',
+      audience: 'demo',
+      issuer: 'demo',
+    },
+  },
 };
 
 @Global()
 @Module({
   providers: [AuthService, JwtStrategy, BasicStrategy, {
     provide: APP_GUARD,
-    useClass: AuthBasicGuard
+    useClass: AuthBasicGuard,
   }, {
     provide: APP_GUARD,
-    useClass: AuthJwtGuard
+    useClass: AuthJwtGuard,
   }, {
     provide: APP_GUARD,
-    useClass: RoleAclGuard
+    useClass: RoleAclGuard,
   }],
-  exports: [AuthService]
+  exports: [AuthService],
 })
 export class AuthModule {
   @Log() private static logger: LoggerService;
@@ -82,9 +82,9 @@ export class AuthModule {
         useFactory: async (...args) => {
           const opts = await options.useFactory(...args);
           return _.defaultsDeep(opts, defaultAuthConfig);
-        }
+        },
       }],
-      controllers: options.enabledController ? [AuthController] : []
+      controllers: options.enabledController ? [AuthController] : [],
     };
   }
 }

@@ -50,24 +50,24 @@
  *          ┗┻┛    ┗┻┛+ + + +
  * ----------- 永 无 BUG ------------
  */
-import { SwaggerDecorators } from "@nest-mods/swagger-helper";
-import { IsNotEmpty } from "class-validator";
+import { SwaggerDecorators } from '@nest-mods/swagger-helper';
+import { IsNotEmpty } from 'class-validator';
 import ApiModelProperty = SwaggerDecorators.ApiModelProperty;
 
 export class LoginDto {
   @ApiModelProperty({
-    type: "string",
+    type: 'string',
     required: true,
-    description: "username"
+    description: 'username',
   })
   @IsNotEmpty()
   username: string;
 
   @ApiModelProperty({
-    type: "string",
-    format: "password",
+    type: 'string',
+    format: 'password',
     required: true,
-    description: "password"
+    description: 'password',
   })
   @IsNotEmpty()
   password: string;

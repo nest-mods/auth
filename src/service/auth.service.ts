@@ -22,46 +22,46 @@
  * SOFTWARE.
  */
 
-import * as jwt from "jsonwebtoken";
-import { Inject, Injectable, LoggerService } from "@nestjs/common";
-import { AuthModuleOptions, Payload, UserDetail, UserDetailService } from "../interfaces";
-import { AUTH_MODULE_OPTIONS } from "../constants";
-import { Log } from "@nest-mods/log";
-import { PasswordNotMatchException } from "../exception";
-import * as _ from "lodash";
+import { Log } from '@nest-mods/log';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import * as jwt from 'jsonwebtoken';
+import * as _ from 'lodash';
+import { AUTH_MODULE_OPTIONS, LOG_PREFIX } from '../constants';
+import { PasswordNotMatchException } from '../exception';
+import { AuthModuleOptions, Payload, UserDetail, UserDetailService } from '../interfaces';
 
 export enum AuthType {
-  PASSWORD = "PASSWORD",
+  PASSWORD = 'PASSWORD',
 }
 
 @Injectable()
 export class AuthService {
 
-  @Log() private logger: LoggerService;
+  @Log(LOG_PREFIX) private logger: Logger;
 
   private userService: UserDetailService;
 
   constructor(@Inject(AUTH_MODULE_OPTIONS) private options: AuthModuleOptions) {
     if (!options.service) {
-      throw new Error("You MUST provide UserDetailService implement");
+      throw new Error('You MUST provide UserDetailService implement');
     }
     this.userService = options.service;
   }
 
   async issueToken(user: UserDetail, authType: AuthType = AuthType.PASSWORD) {
-    this.logger.log({ message: `issueToken for ${user.username}`, level: "debug" });
+    this.logger.debug(`issueToken for ${user.username}`);
     const jwtConfig = this.options.jwtAuth;
 
     return jwt.sign({
       uid: user.id,
       sub: user.username,
       roles: user.roles,
-      authType
+      authType,
     }, jwtConfig.secret, jwtConfig.signOptions);
   }
 
   async verifyByPass(username: string, password: string) {
-    this.logger.log({ message: `verifyByPass for ${username}`, level: "debug" });
+    this.logger.debug(`verifyByPass for ${username}`);
     const user = await this.userService.loadByUsername(username);
 
     const pass = await this.userService.verifyPassword(user, password);
@@ -81,7 +81,7 @@ export class AuthService {
   }
 
   async verifyByJwtUser(payload: Payload) {
-    this.logger.log({ message: `verifyByJwtUser for ${payload.sub}`, level: "debug" });
+    this.logger.debug(`verifyByJwtUser for ${payload.sub}`);
     const user = await this.userService.loadByUsername(payload.sub);
 
     if (_.isFunction(this.userService.verifyJwtSuccessful)) {
