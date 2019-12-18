@@ -24,7 +24,7 @@
 
 import { Log } from '@nest-mods/log';
 import { SwaggerDecorators } from '@nest-mods/swagger-helper';
-import { Body, Controller, Get, HttpCode, HttpStatus, Logger, Post, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Logger, Post, Req, ValidationPipe } from '@nestjs/common';
 import { LOG_PREFIX } from '../constants';
 import { Authorized, CurrentUser, NoAuth } from '../decorator';
 import { IssuedTokenDto } from '../dto/issued-token.dto';
@@ -50,9 +50,9 @@ export class AuthController {
   @NoAuth()
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@Body(new ValidationPipe()) form: LoginDto) {
+  async login(@Req() req: any, @Body(new ValidationPipe()) form: LoginDto) {
     this.logger.debug(`${form.username} is logging in`);
-    const user = await this.authService.verifyByPass(form.username, form.password);
+    const user = await this.authService.verifyByPass(form.username, form.password, req);
     const token = await this.authService.issueToken(user);
     return { token };
   }

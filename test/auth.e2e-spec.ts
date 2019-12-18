@@ -129,8 +129,22 @@ class UserService implements UserDetailService {
     return user;
   }
 
-  async verifyPassword(user: User, raw: string): Promise<boolean> {
-    return raw === 'test';
+  async verifyPassword(user: User, raw: string, req?: any): Promise<boolean> {
+    const isPassed = raw === 'test';
+    if (isPassed) {
+      await this.loginSuccessful(user, req);
+    } else {
+      await this.loginFailed(user);
+    }
+    return isPassed;
+  }
+
+  async loginSuccessful(user: User, req?: any) {
+    logger.log(`loginSuccessful ${user.username}%${req?.ip}`);
+  }
+
+  async loginFailed(user: User) {
+    logger.log(`loginFailed ${user.username}`);
   }
 }
 

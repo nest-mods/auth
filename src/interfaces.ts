@@ -38,11 +38,11 @@ export interface UserDetailService<T extends UserDetail = UserDetail> {
 
   verifyPassword(user: T, raw: string): Promise<boolean>;
 
-  loginSuccessful?(user: T): Promise<void>;
+  loginSuccessful?(user: T, req?: any): Promise<void>;
 
   verifyJwtSuccessful?(user: T): Promise<void>;
 
-  loginFailed?(user: T): Promise<void>;
+  loginFailed?(user: T, req?: any): Promise<void>;
 }
 
 export interface AuthModuleOptions {

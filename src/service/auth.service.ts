@@ -60,7 +60,7 @@ export class AuthService {
     }, jwtConfig.secret, jwtConfig.signOptions);
   }
 
-  async verifyByPass(username: string, password: string) {
+  async verifyByPass(username: string, password: string, req?: any) {
     this.logger.debug(`verifyByPass for ${username}`);
     const user = await this.userService.loadByUsername(username);
 
@@ -68,13 +68,13 @@ export class AuthService {
 
     if (!pass) {
       if (_.isFunction(this.userService.loginFailed)) {
-        await this.userService.loginFailed(user);
+        await this.userService.loginFailed(user, req);
       }
       throw new PasswordNotMatchException();
     }
 
     if (_.isFunction(this.userService.loginSuccessful)) {
-      await this.userService.loginSuccessful(user);
+      await this.userService.loginSuccessful(user, req);
     }
 
     return user;
