@@ -52,10 +52,43 @@
  */
 
 import { LogModule } from '@nest-mods/log';
-import { Controller, Get, INestApplication, Injectable, Logger, Module } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, INestApplication, Injectable, Logger, Module, Post, Req, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { IsNotEmpty } from 'class-validator';
 import * as request from 'supertest';
-import { AuthModule, Authorized, NoAuth, UserDetail, UserDetailService } from '../src';
+import { AuthModule, Authorized, AuthService, CurrentUser, NoAuth, UserDetail, UserDetailService } from '../src';
+
+class LoginReq {
+  @IsNotEmpty()
+  username: string;
+  @IsNotEmpty()
+  password: string;
+}
+
+@Controller('auth')
+class AuthController {
+
+  constructor(private authService: AuthService) {
+  }
+
+  @NoAuth()
+  @HttpCode(HttpStatus.OK)
+  @Post('login')
+  async login(@Req() req: any, @Body(new ValidationPipe()) form: LoginReq) {
+    logger.debug(`${form.username} is logging in`);
+    const user = await this.authService.verifyByPass(form.username, form.password, req);
+    const token = await this.authService.issueToken(user);
+    return { token };
+  }
+
+  @Authorized()
+  @Get('me')
+  async me(@CurrentUser({ required: true }) user: UserDetail) {
+    logger.verbose({ message: 'me', user });
+    return user;
+  }
+
+}
 
 @Authorized('A')
 @Controller('tests')
@@ -150,7 +183,7 @@ class UserService implements UserDetailService {
 
 @Module({
   providers: [UserService],
-  controllers: [TestController, Test2Controller],
+  controllers: [TestController, Test2Controller, AuthController],
   exports: [UserService],
 })
 class DemoModule {
@@ -173,7 +206,6 @@ describe('AuthModule Tests', function() {
             service,
             bypassUser: user => user.id === 1,
           }),
-          enabledController: true,
           inject: [UserService],
           imports: [DemoModule],
         })],

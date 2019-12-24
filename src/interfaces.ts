@@ -69,7 +69,6 @@ export interface AuthModuleOptions {
 export interface AuthModuleAsyncOptions extends Pick<ModuleMetadata, 'imports'> {
   useFactory?: (...args: any[]) => Promise<AuthModuleOptions> | AuthModuleOptions;
   inject?: any[];
-  enabledController?: boolean;
 }
 
 export type Callback<T = any> = (error: Error | null, data?: T) => void;

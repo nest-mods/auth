@@ -27,7 +27,6 @@ import { DynamicModule, Global, LoggerService, Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import * as _ from 'lodash';
 import { AUTH_MODULE_OPTIONS, AuthActionType } from './constants';
-import { AuthController } from './controller/auth.controller';
 import { AuthBasicGuard } from './guard/auth-basic.guard';
 import { AuthJwtGuard } from './guard/auth-jwt.guard';
 import { RoleAclGuard } from './guard/role-acl.guard';
@@ -84,7 +83,6 @@ export class AuthModule {
           return _.defaultsDeep(opts, defaultAuthConfig);
         },
       }],
-      controllers: options.enabledController ? [AuthController] : [],
     };
   }
 }
