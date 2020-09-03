@@ -67,6 +67,9 @@ import { Test } from '@nestjs/testing';
 import * as request from 'supertest';
 import { AuthModule, Authorized, AuthService, CurrentUser } from '../src';
 
+const logger = new Logger('AuthModule Tests');
+
+// <editor-fold desc="TL:DR">
 class LoginReq {
   username: string;
   password: string;
@@ -147,8 +150,8 @@ class Test2Controller {
 class DemoModule {
 }
 
-const logger = new Logger('AuthModule Tests');
-jest.setTimeout(1000000);
+// </editor-fold>
+
 describe('AuthModule Tests', function() {
 
   let app: INestApplication;
@@ -173,13 +176,14 @@ describe('AuthModule Tests', function() {
             }),
             debug: true,
           }),
-          imports: [DemoModule],
-        })],
+        }),
+      ],
     }).compile();
 
     app = module.createNestApplication();
     await app.init();
-  });
+  }, 100000);
+  afterAll(() => app.close());
 
   beforeEach(async () => {
     const res = await request(app.getHttpServer())
@@ -188,7 +192,8 @@ describe('AuthModule Tests', function() {
 
     token = res.body.token;
 
-    logger.log({ message: 'login', token, level: 'debug' });
+    logger.debug('POST /auth/login');
+    logger.debug(token);
   });
 
   it('should access a', async () => {

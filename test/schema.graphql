@@ -1,0 +1,17 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Query {
+  me: String!
+  forA: Boolean!
+  forAnB: Boolean!
+  forB: Boolean!
+  forC: Boolean!
+  forEveryone: Boolean!
+  needLogin: Boolean!
+}
+
+type Mutation {
+  login(username: String!, password: String!): String!
+}
