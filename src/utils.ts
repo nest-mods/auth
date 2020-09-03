@@ -27,7 +27,23 @@
  * ----------- 永 无 BUG ------------
  */
 
-export const AUTH_MODULE_ID = '@app/auth';
+import { ExecutionContext } from '@nestjs/common';
+import { Observable } from 'rxjs';
 
-export const METADATA_KEY_AUTHORIZED = `${AUTH_MODULE_ID}:METADATA_KEY:Authorized`;
-export const LOG_PREFIX = 'auth';
+export function getRequestFromExecutionContext<T = any>(context: ExecutionContext): T {
+  switch (context.getType() as import('@nestjs/graphql').GqlContextType) {
+    case 'graphql':
+      return require('@nestjs/graphql').GqlExecutionContext.create(context).getContext()?.req as T;
+    case 'http':
+      return context.switchToHttp().getRequest<T>();
+    default:
+      throw new Error('Currently @nest-mods/auth doesn\'t support this context' + context.getType());
+  }
+}
+
+export async function resolveAny<T = any>(target: Promise<T> | Observable<T> | T) {
+  if (target instanceof Observable) {
+    return target.toPromise();
+  }
+  return target;
+}

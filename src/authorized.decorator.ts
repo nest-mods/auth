@@ -26,8 +26,11 @@
  *          ┗┻┛    ┗┻┛+ + + +
  * ----------- 永 无 BUG ------------
  */
+import { SetMetadata } from '@nestjs/common';
+import * as _ from 'lodash';
 
-export const AUTH_MODULE_ID = '@app/auth';
+import { METADATA_KEY_AUTHORIZED } from './constants';
 
-export const METADATA_KEY_AUTHORIZED = `${AUTH_MODULE_ID}:METADATA_KEY:Authorized`;
-export const LOG_PREFIX = 'auth';
+export function Authorized(...roles: string[]): ClassDecorator & MethodDecorator {
+  return SetMetadata(METADATA_KEY_AUTHORIZED, _.chain(roles).compact().uniq().value());
+}

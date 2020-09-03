@@ -27,7 +27,28 @@
  * ----------- 永 无 BUG ------------
  */
 
-export const AUTH_MODULE_ID = '@app/auth';
+import { createParamDecorator, ExecutionContext, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 
-export const METADATA_KEY_AUTHORIZED = `${AUTH_MODULE_ID}:METADATA_KEY:Authorized`;
-export const LOG_PREFIX = 'auth';
+import { getRequestFromExecutionContext } from './utils';
+
+export interface CurrentUserOptions {
+  required?: boolean;
+  cors?: boolean;
+}
+
+export function CurrentUser(options?: CurrentUserOptions): ParameterDecorator {
+  return (target, propertyKey, parameterIndex) => {
+    createParamDecorator((options: CurrentUserOptions, ctx: ExecutionContext) => {
+      const req = getRequestFromExecutionContext(ctx);
+      const user: Express.User = req?.user;
+      if (options?.required && !user) {
+        throw new UnauthorizedException('not logged in');
+      }
+      if (!user) return null;
+      if (!user.isLocal && !options?.cors) {
+        throw new ForbiddenException();
+      }
+      return user;
+    })(options)(target, propertyKey, parameterIndex);
+  };
+}

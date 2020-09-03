@@ -9,10 +9,8 @@
     "declaration": true,
     "outDir": "./dist",
     "importHelpers": true,
-    "baseUrl": "./",
-    "typeRoots": [
-      "node_modules/@types"
-    ]
+    "incremental": true,
+    "baseUrl": "./"
   },
   "exclude": [
     "node_modules"

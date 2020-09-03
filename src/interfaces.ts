@@ -1,87 +1,118 @@
 /*
- * MIT License
+ * Created by Diluka on 2020-04-29.
  *
- * Copyright (c) 2019 nest-mods
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * ----------- 神 兽 佑 我 -----------
+ *        ┏┓      ┏┓+ +
+ *       ┏┛┻━━━━━━┛┻┓ + +
+ *       ┃          ┃
+ *       ┣     ━    ┃ ++ + + +
+ *      ████━████   ┃+
+ *       ┃          ┃ +
+ *       ┃  ┴       ┃
+ *       ┃          ┃ + +
+ *       ┗━┓      ┏━┛  Code is far away from bug
+ *         ┃      ┃       with the animal protecting
+ *         ┃      ┃ + + + +
+ *         ┃      ┃
+ *         ┃      ┃ +
+ *         ┃      ┃      +  +
+ *         ┃      ┃    +
+ *         ┃      ┗━━━┓ + +
+ *         ┃          ┣┓
+ *         ┃          ┏┛
+ *         ┗┓┓┏━━━━┳┓┏┛ + + + +
+ *          ┃┫┫    ┃┫┫
+ *          ┗┻┛    ┗┻┛+ + + +
+ * ----------- 永 无 BUG ------------
  */
 
 import { ModuleMetadata } from '@nestjs/common/interfaces';
-import { SignOptions } from 'jsonwebtoken';
-import { AuthActionType } from './constants';
 
-export interface UserDetail {
-  id?: number;
-  username: string;
-  roles: string[];
-  lastChangedAt: Date;
+declare global {
+  namespace Express {
+    // tslint:disable-next-line:no-empty-interface
+    export interface User extends Pick<AuthUser, 'uid' | 'sub' | 'roles' | 'isLocal'>, Record<string, any> {
+    }
+
+    export interface Request {
+      user?: User;
+    }
+  }
 }
 
-export interface UserDetailService<T extends UserDetail = UserDetail> {
-  loadByUsername(username: string): Promise<T>;
-
-  verifyPassword(user: T, raw: string): Promise<boolean>;
-
-  loginSuccessful?(user: T, req?: any): Promise<void>;
-
-  verifyJwtSuccessful?(user: T): Promise<void>;
-
-  loginFailed?(user: T, req?: any): Promise<void>;
-}
+export type LoadUserBySubFn = (sub: string, type?: string) => Promise<AuthUserWithCredential> | AuthUserWithCredential;
+export type UidType = string | number;
+export type OnValidatedFn = (user: AuthUser | AuthJwtUser, strategy: string) => Promise<any>;
 
 export interface AuthModuleOptions {
-  useJwt?: boolean;
-  useBasic?: boolean;
-  useACL?: boolean;
-  /**
-   * @deprecated
-   */
-  superUserId?: number;
-  bypassUser?: (user: UserDetail) => Promise<boolean> | boolean;
-  service: UserDetailService,
-  basicAuth?: {
-    defaultAuthAction?: AuthActionType,
-  };
-  jwtAuth?: {
-    defaultAuthAction?: AuthActionType,
-    queryTokenKey?: string,
-    secret?: string,
-    signOptions?: SignOptions,
-  };
+  secret: string;
+  thisApp: string;
+  forApps: string[];
+  expiresIn: string | number;
+  session?: boolean;
+  su?: string;
+  ignoreJti?: boolean;
+  jtiStoreDB?: string;
+  loadUserBySub?: LoadUserBySubFn;
+  passwordEncoder?: IPasswordEncoder;
+  onValidated?: OnValidatedFn;
+  debug?: boolean;
 }
 
 export interface AuthModuleAsyncOptions extends Pick<ModuleMetadata, 'imports'> {
-  useFactory?: (...args: any[]) => Promise<AuthModuleOptions> | AuthModuleOptions;
+  useFactory: (...args: any[]) => Promise<AuthModuleOptions> | AuthModuleOptions;
   inject?: any[];
 }
 
-export type Callback<T = any> = (error: Error | null, data?: T) => void;
-
-export interface Payload {
-  uid: string;
+export interface AuthUser extends Record<string, any> {
+  uid: UidType;
   sub: string;
   roles: string[];
-  authType: string;
-  iat: number;
-  exp: number;
-  nbf?: number;
-  jti?: string;
+
+  /**
+   * issued by self
+   */
+  isLocal?: boolean;
+}
+
+export interface AuthUserWithCredential extends AuthUser {
+  password?: string;
+}
+
+export interface AuthJwtUser extends Omit<AuthUser, 'username'> {
+  /**
+   * Issuer
+   */
   iss: string;
+  /**
+   * Subject
+   */
+  sub: string;
+  /**
+   * Audience
+   */
   aud: string;
+  /**
+   * Expiration Time
+   */
+  exp: number;
+  /**
+   * Not Before
+   */
+  nbf?: number;
+  /**
+   * Issued At
+   */
+  iat: number;
+  /**
+   * JWT ID
+   */
+  jti: string;
+}
+
+export interface IPasswordEncoder {
+  encode(rawPassword: string): string;
+
+  matches(rawPassword: string, encodedPassword: string): boolean;
 }

@@ -51,17 +51,24 @@
  * ----------- 永 无 BUG ------------
  */
 
-import { LogModule } from '@nest-mods/log';
-import { Body, Controller, Get, HttpCode, HttpStatus, INestApplication, Injectable, Logger, Module, Post, Req, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  INestApplication,
+  Logger,
+  Module,
+  Post,
+  Req,
+} from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { IsNotEmpty } from 'class-validator';
 import * as request from 'supertest';
-import { AuthModule, Authorized, AuthService, CurrentUser, NoAuth, UserDetail, UserDetailService } from '../src';
+import { AuthModule, Authorized, AuthService, CurrentUser } from '../src';
 
 class LoginReq {
-  @IsNotEmpty()
   username: string;
-  @IsNotEmpty()
   password: string;
 }
 
@@ -71,20 +78,22 @@ class AuthController {
   constructor(private authService: AuthService) {
   }
 
-  @NoAuth()
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@Req() req: any, @Body(new ValidationPipe()) form: LoginReq) {
+  async login(@Req() req: any, @Body() form: LoginReq) {
     logger.debug(`${form.username} is logging in`);
-    const user = await this.authService.verifyByPass(form.username, form.password, req);
-    const token = await this.authService.issueToken(user);
+    const user = await this.authService.login(form.username, form.password);
+    const token = await this.authService.issueJwt(user);
+    logger.verbose('login:');
+    logger.verbose(token);
     return { token };
   }
 
   @Authorized()
   @Get('me')
-  async me(@CurrentUser({ required: true }) user: UserDetail) {
-    logger.verbose({ message: 'me', user });
+  async me(@CurrentUser({ required: true }) user: Express.User) {
+    logger.verbose('me:');
+    logger.verbose(user);
     return user;
   }
 
@@ -94,19 +103,13 @@ class AuthController {
 @Controller('tests')
 class TestController {
 
-  @NoAuth()
-  @Get()
-  forEveryone() {
-    return true;
-  }
-
   @Get('a')
   forA() {
     return true;
   }
 
   @Get('ab')
-  @Authorized(['A', 'B'])
+  @Authorized('A', 'B')
   forAnB() {
     return true;
   }
@@ -138,53 +141,8 @@ class Test2Controller {
   }
 }
 
-class User implements UserDetail {
-  id: number;
-  lastChangedAt: Date;
-  roles: string[];
-  username: string;
-}
-
-@Injectable()
-class UserService implements UserDetailService {
-  async loadByUsername(username: string): Promise<User> {
-    logger.log(`loadByUsername ${username}`);
-    const user = new User();
-    user.id = username === 'su' ? 1 : 2;
-    user.username = username;
-    user.roles = ['A', 'B'];
-    user.lastChangedAt = new Date();
-    logger.log({
-      message: 'mock user',
-      user,
-      level: 'silly',
-    });
-    return user;
-  }
-
-  async verifyPassword(user: User, raw: string, req?: any): Promise<boolean> {
-    const isPassed = raw === 'test';
-    if (isPassed) {
-      await this.loginSuccessful(user, req);
-    } else {
-      await this.loginFailed(user);
-    }
-    return isPassed;
-  }
-
-  async loginSuccessful(user: User, req?: any) {
-    logger.log(`loginSuccessful ${user.username}%${req?.ip}`);
-  }
-
-  async loginFailed(user: User) {
-    logger.log(`loginFailed ${user.username}`);
-  }
-}
-
 @Module({
-  providers: [UserService],
   controllers: [TestController, Test2Controller, AuthController],
-  exports: [UserService],
 })
 class DemoModule {
 }
@@ -199,14 +157,22 @@ describe('AuthModule Tests', function() {
   beforeAll(async () => {
     const module = await Test.createTestingModule({
       imports: [
-        LogModule,
         DemoModule,
         AuthModule.forRootAsync({
-          useFactory: (service) => ({
-            service,
-            bypassUser: user => user.id === 1,
+          useFactory: () => ({
+            secret: 'demo',
+            su: 'su',
+            thisApp: 'demo',
+            forApps: ['demo'],
+            expiresIn: '7d',
+            loadUserBySub: (sub) => ({
+              uid: 0,
+              sub,
+              password: 'test',
+              roles: ['A', 'B'],
+            }),
+            debug: true,
           }),
-          inject: [UserService],
           imports: [DemoModule],
         })],
     }).compile();
@@ -257,17 +223,6 @@ describe('AuthModule Tests', function() {
     await request(app.getHttpServer())
       .get('/auth/me')
       .expect(401);
-  });
-
-  it('should access by everyone', async () => {
-    await request(app.getHttpServer())
-      .get('/tests/')
-      .expect(200);
-
-    await request(app.getHttpServer())
-      .get('/tests/')
-      .auth(token, { type: 'bearer' })
-      .expect(200);
   });
 
   it('should su access', async () => {
