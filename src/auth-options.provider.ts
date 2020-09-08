@@ -1,17 +1,15 @@
-import { Log } from '@nest-mods/log';
 import { Injectable, Logger } from '@nestjs/common';
 import { JwtModuleOptions, JwtOptionsFactory } from '@nestjs/jwt';
 import { AuthOptionsFactory, IAuthModuleOptions } from '@nestjs/passport';
 import * as _ from 'lodash';
 import { ExtractJwt, StrategyOptions } from 'passport-jwt';
-import { LOG_PREFIX } from './constants';
 import { AuthModuleOptions } from './interfaces';
 import { NoopPasswordEncoder } from './noop-password-encoder';
 
 @Injectable()
 export class AuthOptionsProvider implements AuthOptionsFactory, JwtOptionsFactory {
 
-  @Log(LOG_PREFIX) private logger: Logger;
+  private logger = new Logger('auth');
 
   constructor(private options: AuthModuleOptions) {
   }

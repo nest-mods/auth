@@ -26,19 +26,17 @@
  *          ┗┻┛    ┗┻┛+ + + +
  * ----------- 永 无 BUG ------------
  */
-import { Log } from '@nest-mods/log';
 import { Injectable, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-jwt';
 
 import { AuthOptionsProvider } from './auth-options.provider';
 import { AuthService } from './auth.service';
-import { LOG_PREFIX } from './constants';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
 
-  @Log(LOG_PREFIX) private logger: Logger;
+  private logger = new Logger('auth');
 
   constructor(private options: AuthOptionsProvider, private service: AuthService) {
     super(options.createJwtStrategyOptions());

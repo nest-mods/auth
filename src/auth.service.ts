@@ -1,4 +1,3 @@
-import { Log } from '@nest-mods/log';
 import { Injectable, Logger, Optional, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { SignOptions } from 'jsonwebtoken';
@@ -7,13 +6,12 @@ import { RedisService } from 'nestjs-redis';
 import * as uuid from 'uuid';
 
 import { AuthOptionsProvider } from './auth-options.provider';
-import { LOG_PREFIX } from './constants';
 import { AuthJwtUser, AuthUser, AuthUserWithCredential, UidType } from './interfaces';
 
 @Injectable()
 export class AuthService {
 
-  @Log(LOG_PREFIX) private logger: Logger;
+  private logger = new Logger('auth');
 
   constructor(private jwtService: JwtService,
               @Optional() private redis: RedisService,

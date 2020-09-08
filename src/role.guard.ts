@@ -26,20 +26,19 @@
  *          ┗┻┛    ┗┻┛+ + + +
  * ----------- 永 无 BUG ------------
  */
-import { Log } from '@nest-mods/log';
 import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import * as _ from 'lodash';
 
 import { AuthOptionsProvider } from './auth-options.provider';
 import { AuthService } from './auth.service';
-import { LOG_PREFIX, METADATA_KEY_AUTHORIZED } from './constants';
+import { METADATA_KEY_AUTHORIZED } from './constants';
 import { getRequestFromExecutionContext } from './utils';
 
 @Injectable()
 export class RoleGuard implements CanActivate {
 
-  @Log(LOG_PREFIX) private logger: Logger;
+  private logger = new Logger('auth');
 
   constructor(private reflector: Reflector,
               private options: AuthOptionsProvider,

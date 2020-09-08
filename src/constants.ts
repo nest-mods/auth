@@ -27,7 +27,6 @@
  * ----------- 永 无 BUG ------------
  */
 
-export const AUTH_MODULE_ID = '@app/auth';
+export const AUTH_MODULE_ID = '@nest-mods/auth';
 
 export const METADATA_KEY_AUTHORIZED = `${AUTH_MODULE_ID}:METADATA_KEY:Authorized`;
-export const LOG_PREFIX = 'auth';

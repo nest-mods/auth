@@ -27,19 +27,17 @@
  * ----------- 永 无 BUG ------------
  */
 
-import { Log } from '@nest-mods/log';
 import { Injectable, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { BasicStrategy as HttpBasicStrategy } from 'passport-http';
 
 import { AuthOptionsProvider } from './auth-options.provider';
 import { AuthService } from './auth.service';
-import { LOG_PREFIX } from './constants';
 
 @Injectable()
 export class BasicStrategy extends PassportStrategy(HttpBasicStrategy) {
 
-  @Log(LOG_PREFIX) private logger: Logger;
+  private logger = new Logger('auth');
 
   constructor(private authService: AuthService,
               private options: AuthOptionsProvider) {
