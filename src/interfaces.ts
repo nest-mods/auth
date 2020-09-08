@@ -53,7 +53,7 @@ export interface AuthModuleOptions {
   session?: boolean;
   su?: string;
   ignoreJti?: boolean;
-  jtiStoreDB?: string;
+  redis?: import('ioredis').Redis;
   loadUserBySub?: LoadUserBySubFn;
   passwordEncoder?: IPasswordEncoder;
   onValidated?: OnValidatedFn;

@@ -1,8 +1,7 @@
-import { Injectable, Logger, Optional, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { SignOptions } from 'jsonwebtoken';
 import * as _ from 'lodash';
-import { RedisService } from 'nestjs-redis';
 import * as uuid from 'uuid';
 
 import { AuthOptionsProvider } from './auth-options.provider';
@@ -14,7 +13,6 @@ export class AuthService {
   private logger = new Logger('auth');
 
   constructor(private jwtService: JwtService,
-              @Optional() private redis: RedisService,
               private options: AuthOptionsProvider) {
   }
 
@@ -148,6 +146,6 @@ export class AuthService {
   }
 
   private getRC() {
-    return this.redis?.getClient(this.options.jtiStoreDB);
+    return this.options.redis;
   }
 }

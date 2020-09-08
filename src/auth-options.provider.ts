@@ -22,8 +22,8 @@ export class AuthOptionsProvider implements AuthOptionsFactory, JwtOptionsFactor
     return !!this.options.ignoreJti;
   }
 
-  get jtiStoreDB() {
-    return this.options.jtiStoreDB;
+  get redis() {
+    return this.options.redis;
   }
 
   get loadUserBySub() {

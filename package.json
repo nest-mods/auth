@@ -1,6 +1,6 @@
 {
   "name": "@nest-mods/auth",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "description": "simple role based auth for nestjs using passport",
   "license": "MIT",
   "repository": "https://github.com/nest-mods/auth",
@@ -30,6 +30,7 @@
     "@nestjs/graphql": "^7.6.0",
     "@nestjs/platform-express": "^7.4.4",
     "@nestjs/testing": "^7.4.4",
+    "@types/ioredis": "^4.17.4",
     "@types/jest": "^26.0.13",
     "@types/lodash": "^4.14.161",
     "@types/node": "^10.17.12",
@@ -51,11 +52,9 @@
     "typescript": "^4.0.2"
   },
   "dependencies": {
-    "@nest-mods/log": "^5.0.0",
     "@nestjs/jwt": "^7.1.0",
     "@nestjs/passport": "^7.1.0",
     "lodash": "^4.17.20",
-    "nestjs-redis": "^1.2.8",
     "passport": "^0.4.1",
     "passport-http": "^0.3.0",
     "passport-jwt": "^4.0.0",
