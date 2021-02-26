@@ -1,6 +1,6 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { SignOptions } from 'jsonwebtoken';
+import { DecodeOptions, SignOptions } from 'jsonwebtoken';
 import * as _ from 'lodash';
 import * as uuid from 'uuid';
 
@@ -24,6 +24,11 @@ export class AuthService {
     await this.saveJti(token);
 
     return token;
+  }
+
+  async decodeJwt(token: string, options?: DecodeOptions) {
+    const payload: any = this.jwtService.decode(token, { ...options });
+    return await this.validateJwt(payload);
   }
 
   async login(sub: string, password?: string, type?: string): Promise<AuthUser> {
