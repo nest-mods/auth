@@ -1,5 +1,6 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as IORedis from 'ioredis';
 import { DecodeOptions, SignOptions } from 'jsonwebtoken';
 import * as _ from 'lodash';
 import * as uuid from 'uuid';
@@ -150,7 +151,16 @@ export class AuthService {
     }
   }
 
+  private _redis: IORedis.Redis;
+
   private getRC() {
-    return this.options.redis;
+    if (!this._redis) {
+      if (this.options.redis instanceof IORedis) {
+        this._redis = this.options.redis;
+      } else {
+        this._redis = new IORedis(this.options.redis);
+      }
+    }
+    return this._redis;
   }
 }

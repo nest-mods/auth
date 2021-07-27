@@ -28,6 +28,7 @@
  */
 
 import { ModuleMetadata } from '@nestjs/common/interfaces';
+import { Redis, RedisOptions } from 'ioredis';
 
 declare global {
   namespace Express {
@@ -53,7 +54,7 @@ export interface AuthModuleOptions {
   session?: boolean;
   su?: string;
   ignoreJti?: boolean;
-  redis?: import('ioredis').Redis;
+  redis?: Redis | RedisOptions;
   loadUserBySub?: LoadUserBySubFn;
   passwordEncoder?: IPasswordEncoder;
   onValidated?: OnValidatedFn;
