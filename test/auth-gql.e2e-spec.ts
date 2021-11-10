@@ -10,7 +10,7 @@ import {
 } from '@nestjs/graphql';
 import { Test } from '@nestjs/testing';
 import gql from 'graphql-tag';
-import { AuthModule, Authorized, AuthService, CurrentUser } from '../src';
+import { AuthModule, Authorized, AuthService, CurrentUser, LoggedIn } from '../src';
 import {
   createTestGraphqlClient,
   GQLClient,
@@ -86,6 +86,12 @@ class Test2Resolver {
   @Authorized()
   @Query(() => Boolean)
   needLogin() {
+    return true;
+  }
+
+  @LoggedIn()
+  @Query(() => Boolean)
+  needLogin2() {
     return true;
   }
 }
@@ -272,6 +278,18 @@ describe('AuthModule Tests for GraphQL', () => {
     `)
       .auth('test', 'test')
       .expect(200);
+
+    expect(body).not.toHaveProperty('errors');
+  });
+
+  it('should access with login2', async () => {
+    const { body } = await client(gql`
+        query {
+            needLogin2
+        }
+    `)
+    .auth('test', 'test')
+    .expect(200);
 
     expect(body).not.toHaveProperty('errors');
   });

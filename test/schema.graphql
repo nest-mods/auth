@@ -10,6 +10,7 @@ type Query {
   forC: Boolean!
   forEveryone: Boolean!
   needLogin: Boolean!
+  needLogin2: Boolean!
 }
 
 type Mutation {

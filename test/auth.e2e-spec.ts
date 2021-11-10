@@ -65,7 +65,7 @@ import {
 } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import * as request from 'supertest';
-import { AuthModule, Authorized, AuthService, CurrentUser } from '../src';
+import { AuthModule, Authorized, AuthService, CurrentUser, LoggedIn } from '../src';
 
 const logger = new Logger('AuthModule Tests');
 
@@ -140,6 +140,12 @@ class Test2Controller {
   @Authorized()
   @Get('need-login')
   needLogin() {
+    return true;
+  }
+
+  @LoggedIn()
+  @Get('need-login2')
+  needLogin2() {
     return true;
   }
 }
@@ -259,6 +265,13 @@ describe('AuthModule Tests', function() {
   it('should access with login', async () => {
     await request(app.getHttpServer())
       .get('/test2/need-login')
+      .auth('test', 'test')
+      .expect(200);
+  });
+
+  it('should access with login2', async () => {
+    await request(app.getHttpServer())
+      .get('/test2/need-login2')
       .auth('test', 'test')
       .expect(200);
   });
