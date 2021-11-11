@@ -6,18 +6,26 @@ import * as _ from 'lodash';
 import * as uuid from 'uuid';
 
 import { AuthOptionsProvider } from './auth-options.provider';
-import { AuthJwtUser, AuthUser, AuthUserWithCredential, UidType } from './interfaces';
+import {
+  AuthJwtUser,
+  AuthUser,
+  AuthUserWithCredential,
+  UidType,
+} from './interfaces';
 
 @Injectable()
 export class AuthService {
-
   private logger = new Logger('auth');
 
-  constructor(private jwtService: JwtService,
-              private options: AuthOptionsProvider) {
-  }
+  constructor(
+    private jwtService: JwtService,
+    private options: AuthOptionsProvider,
+  ) {}
 
-  async issueJwt(authUser: AuthUser | AuthUserWithCredential, options?: SignOptions) {
+  async issueJwt(
+    authUser: AuthUser | AuthUserWithCredential,
+    options?: SignOptions,
+  ) {
     const { password, ...payload } = authUser;
     const jwtid = uuid.v4();
     const token = this.jwtService.sign(payload, { ...options, jwtid });
@@ -32,7 +40,11 @@ export class AuthService {
     return await this.validateJwt(payload);
   }
 
-  async login(sub: string, password?: string, type?: string): Promise<AuthUser> {
+  async login(
+    sub: string,
+    password?: string,
+    type?: string,
+  ): Promise<AuthUser> {
     if (this.options.isDebug) {
       this.logger.debug(`login ${sub}`);
     }
@@ -126,7 +138,7 @@ export class AuthService {
   }
 
   hasAnyRole(user: AuthUser, roles: string[]) {
-    return user?.roles.some(o => roles.includes(o));
+    return user?.roles.some((o) => roles.includes(o));
   }
 
   private async saveJti(token: string) {
@@ -134,10 +146,7 @@ export class AuthService {
     if (redisClient) {
       const { uid, exp, jti } = this.jwtService.decode(token) as AuthJwtUser;
       const key = `JWT:${uid}:${jti}`;
-      await redisClient.multi()
-        .set(key, 'OK')
-        .expireat(key, exp)
-        .exec();
+      await redisClient.multi().set(key, 'OK').expireat(key, exp).exec();
     }
   }
 
@@ -154,6 +163,9 @@ export class AuthService {
   private _redis: IORedis.Redis;
 
   private getRC() {
+    if (!this.options.redis) {
+      return null;
+    }
     if (!this._redis) {
       if (this.options.redis instanceof IORedis) {
         this._redis = this.options.redis;
