@@ -51,21 +51,11 @@
  * ----------- 永 无 BUG ------------
  */
 
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
-  INestApplication,
-  Logger,
-  Module,
-  Post,
-  Req,
-} from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, INestApplication, Logger, Module, Post, Req } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import * as request from 'supertest';
 import { AuthModule, Authorized, AuthService, CurrentUser, LoggedIn } from '../src';
+import { NoAuth } from '../src/no-auth.decorator';
 
 const logger = new Logger('AuthModule Tests');
 
@@ -126,6 +116,12 @@ class TestController {
   @Get('c')
   @Authorized('C')
   forC() {
+    return true;
+  }
+
+  @NoAuth()
+  @Get('no-auth')
+  forNoAuth() {
     return true;
   }
 }
@@ -248,6 +244,12 @@ describe('AuthModule Tests', function() {
       .get('/tests/b')
       .auth('test', 'test1')
       .expect(401);
+  });
+
+  it('should access without auth', async () => {
+    await request(app.getHttpServer())
+      .get('/tests/no-auth')
+      .expect(200)
   });
 
   it('should access a public route', async () => {

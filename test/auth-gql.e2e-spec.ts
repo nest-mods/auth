@@ -10,7 +10,14 @@ import {
 } from '@nestjs/graphql';
 import { Test } from '@nestjs/testing';
 import gql from 'graphql-tag';
-import { AuthModule, Authorized, AuthService, CurrentUser, LoggedIn } from '../src';
+import {
+  AuthModule,
+  Authorized,
+  AuthService,
+  CurrentUser,
+  LoggedIn,
+  NoAuth,
+} from '../src';
 import {
   createTestGraphqlClient,
   GQLClient,
@@ -72,6 +79,12 @@ class Test1Resolver {
   @Query(() => Boolean)
   @Authorized('C')
   forC() {
+    return true;
+  }
+
+  @NoAuth()
+  @Query(() => Boolean)
+  forNoAuth() {
     return true;
   }
 }
@@ -249,6 +262,16 @@ describe('AuthModule Tests for GraphQL', () => {
     expect(body.errors[0].extensions.code).toEqual('UNAUTHENTICATED');
   });
 
+  it('should access without auth', async () => {
+    const { body } = await client(gql`
+      query {
+        forNoAuth
+      }
+    `).expect(200);
+
+    expect(body).not.toHaveProperty('errors');
+  });
+
   it('should access a public route', async () => {
     const { body } = await client(gql`
       query {
@@ -284,12 +307,12 @@ describe('AuthModule Tests for GraphQL', () => {
 
   it('should access with login2', async () => {
     const { body } = await client(gql`
-        query {
-            needLogin2
-        }
+      query {
+        needLogin2
+      }
     `)
-    .auth('test', 'test')
-    .expect(200);
+      .auth('test', 'test')
+      .expect(200);
 
     expect(body).not.toHaveProperty('errors');
   });
