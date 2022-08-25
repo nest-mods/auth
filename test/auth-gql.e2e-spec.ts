@@ -1,27 +1,10 @@
+import { ApolloDriver } from '@nestjs/apollo';
 import { INestApplication, Logger, Module } from '@nestjs/common';
-import {
-  Args,
-  ArgsType,
-  Field,
-  GraphQLModule,
-  Mutation,
-  Query,
-  Resolver,
-} from '@nestjs/graphql';
+import { Args, ArgsType, Field, GraphQLModule, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Test } from '@nestjs/testing';
 import gql from 'graphql-tag';
-import {
-  AuthModule,
-  Authorized,
-  AuthService,
-  CurrentUser,
-  LoggedIn,
-  NoAuth,
-} from '../src';
-import {
-  createTestGraphqlClient,
-  GQLClient,
-} from './util/create-test-graphql-client';
+import { AuthModule, Authorized, AuthService, CurrentUser, LoggedIn, NoAuth } from '../src';
+import { createTestGraphqlClient, GQLClient } from './util/create-test-graphql-client';
 
 const logger = new Logger('AuthModule Tests for GraphQL');
 
@@ -36,7 +19,8 @@ class LoginArgs {
 
 @Resolver()
 class AuthResolver {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) {
+  }
 
   @Mutation(() => String)
   async login(@Args() { username, password }: LoginArgs) {
@@ -112,7 +96,8 @@ class Test2Resolver {
 @Module({
   providers: [AuthResolver, Test1Resolver, Test2Resolver],
 })
-class DemoModule {}
+class DemoModule {
+}
 
 // </editor-fold>
 
@@ -126,6 +111,7 @@ describe('AuthModule Tests for GraphQL', () => {
       imports: [
         DemoModule,
         GraphQLModule.forRoot({
+          driver: ApolloDriver,
           autoSchemaFile: 'test/schema.graphql',
           playground: false,
           debug: true,
@@ -163,9 +149,9 @@ describe('AuthModule Tests for GraphQL', () => {
       },
     } = await client(
       gql`
-        mutation ($username: String!, $password: String!) {
-          login(username: $username, password: $password)
-        }
+          mutation ($username: String!, $password: String!) {
+              login(username: $username, password: $password)
+          }
       `,
       { username: 'test', password: 'test' },
     ).expect(200);
@@ -178,48 +164,48 @@ describe('AuthModule Tests for GraphQL', () => {
 
   it('should access a', async () => {
     const { body } = await client(gql`
-      query {
-        forA
-      }
+        query {
+            forA
+        }
     `)
-      .auth(token, { type: 'bearer' })
-      .expect(200);
+    .auth(token, { type: 'bearer' })
+    .expect(200);
 
     expect(body).not.toHaveProperty('errors');
   });
 
   it('should access b', async () => {
     const { body } = await client(gql`
-      query {
-        forB
-      }
+        query {
+            forB
+        }
     `)
-      .auth(token, { type: 'bearer' })
-      .expect(200);
+    .auth(token, { type: 'bearer' })
+    .expect(200);
 
     expect(body).not.toHaveProperty('errors');
   });
 
   it('should access ab', async () => {
     const { body } = await client(gql`
-      query {
-        forAnB
-      }
+        query {
+            forAnB
+        }
     `)
-      .auth(token, { type: 'bearer' })
-      .expect(200);
+    .auth(token, { type: 'bearer' })
+    .expect(200);
 
     expect(body).not.toHaveProperty('errors');
   });
 
   it('should not access c', async () => {
     const { body } = await client(gql`
-      query {
-        forC
-      }
+        query {
+            forC
+        }
     `)
-      .auth(token, { type: 'bearer' })
-      .expect(200);
+    .auth(token, { type: 'bearer' })
+    .expect(200);
 
     expect(body).toHaveProperty('errors');
     expect(body.errors[0].extensions.code).toEqual('FORBIDDEN');
@@ -227,36 +213,36 @@ describe('AuthModule Tests for GraphQL', () => {
 
   it('should require login', async () => {
     const { body } = await client(gql`
-      query {
-        me
-      }
+        query {
+            me
+        }
     `)
-      .auth(token, { type: 'bearer' })
-      .expect(200);
+    .auth(token, { type: 'bearer' })
+    .expect(200);
 
     expect(body).not.toHaveProperty('errors');
   });
 
   it('should su access', async () => {
     const { body } = await client(gql`
-      query {
-        forC
-      }
+        query {
+            forC
+        }
     `)
-      .auth('su', 'test')
-      .expect(200);
+    .auth('su', 'test')
+    .expect(200);
 
     expect(body).not.toHaveProperty('errors');
   });
 
   it('should not access with wrong pass', async () => {
     const { body } = await client(gql`
-      query {
-        forB
-      }
+        query {
+            forB
+        }
     `)
-      .auth('test', 'test1')
-      .expect(200);
+    .auth('test', 'test1')
+    .expect(200);
 
     expect(body).toHaveProperty('errors');
     expect(body.errors[0].extensions.code).toEqual('UNAUTHENTICATED');
@@ -264,9 +250,9 @@ describe('AuthModule Tests for GraphQL', () => {
 
   it('should access without auth', async () => {
     const { body } = await client(gql`
-      query {
-        forNoAuth
-      }
+        query {
+            forNoAuth
+        }
     `).expect(200);
 
     expect(body).not.toHaveProperty('errors');
@@ -274,9 +260,9 @@ describe('AuthModule Tests for GraphQL', () => {
 
   it('should access a public route', async () => {
     const { body } = await client(gql`
-      query {
-        forEveryone
-      }
+        query {
+            forEveryone
+        }
     `).expect(200);
 
     expect(body).not.toHaveProperty('errors');
@@ -284,9 +270,9 @@ describe('AuthModule Tests for GraphQL', () => {
 
   it('should not access without login', async () => {
     const { body } = await client(gql`
-      query {
-        needLogin
-      }
+        query {
+            needLogin
+        }
     `).expect(200);
 
     expect(body).toHaveProperty('errors');
@@ -295,24 +281,24 @@ describe('AuthModule Tests for GraphQL', () => {
 
   it('should access with login', async () => {
     const { body } = await client(gql`
-      query {
-        needLogin
-      }
+        query {
+            needLogin
+        }
     `)
-      .auth('test', 'test')
-      .expect(200);
+    .auth('test', 'test')
+    .expect(200);
 
     expect(body).not.toHaveProperty('errors');
   });
 
   it('should access with login2', async () => {
     const { body } = await client(gql`
-      query {
-        needLogin2
-      }
+        query {
+            needLogin2
+        }
     `)
-      .auth('test', 'test')
-      .expect(200);
+    .auth('test', 'test')
+    .expect(200);
 
     expect(body).not.toHaveProperty('errors');
   });

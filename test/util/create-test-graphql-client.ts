@@ -37,6 +37,6 @@ export type GQLClient = (doc: DocumentNode, variables?: any) => supertest.Test;
 export function createTestGraphqlClient(app: INestApplication): GQLClient {
   const $ = supertest(app.getHttpServer());
   const m: any = app.get(GraphQLModule);
-  const path = m.apolloServer.graphqlPath;
+  const path = m._graphQlAdapter._apolloServer.graphqlPath;
   return (doc: DocumentNode, variables?: any) => $.post(path).send({ variables, query: print(doc) });
 }
