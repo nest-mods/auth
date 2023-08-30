@@ -1,17 +1,12 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { randomUUID } from 'crypto';
 import IORedis from 'ioredis';
 import { DecodeOptions, SignOptions } from 'jsonwebtoken';
 import * as _ from 'lodash';
-import * as uuid from 'uuid';
 
 import { AuthOptionsProvider } from './auth-options.provider';
-import {
-  AuthJwtUser,
-  AuthUser,
-  AuthUserWithCredential,
-  UidType,
-} from './interfaces';
+import { AuthJwtUser, AuthUser, AuthUserWithCredential, UidType } from './interfaces';
 
 @Injectable()
 export class AuthService {
@@ -20,14 +15,15 @@ export class AuthService {
   constructor(
     private jwtService: JwtService,
     private options: AuthOptionsProvider,
-  ) {}
+  ) {
+  }
 
   async issueJwt(
     authUser: AuthUser | AuthUserWithCredential,
     options?: SignOptions,
   ) {
     const { password, ...payload } = authUser;
-    const jwtid = uuid.v4();
+    const jwtid = randomUUID();
     const token = this.jwtService.sign(payload, { ...options, jwtid });
 
     await this.saveJti(token);
