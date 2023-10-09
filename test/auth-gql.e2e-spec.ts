@@ -120,6 +120,7 @@ describe('AuthModule Tests for GraphQL', () => {
           useFactory: () => ({
             secret: 'demo',
             su: 'su',
+            suRoles: ['SU'],
             thisApp: 'demo',
             forApps: ['demo'],
             expiresIn: '7d',
@@ -127,7 +128,7 @@ describe('AuthModule Tests for GraphQL', () => {
               uid: 0,
               sub,
               password: 'test',
-              roles: ['A', 'B'],
+              roles: ['A', 'B', sub === 'su-role' ? 'SU' : 'U'],
             }),
             debug: true,
           }),
@@ -230,6 +231,18 @@ describe('AuthModule Tests for GraphQL', () => {
         }
     `)
     .auth('su', 'test')
+    .expect(200);
+
+    expect(body).not.toHaveProperty('errors');
+  });
+
+  it('should su role access', async () => {
+    const { body } = await client(gql`
+        query {
+            forC
+        }
+    `)
+    .auth('su-role', 'test')
     .expect(200);
 
     expect(body).not.toHaveProperty('errors');

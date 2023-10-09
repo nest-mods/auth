@@ -27,8 +27,8 @@
  * ----------- 永 无 BUG ------------
  */
 
-import { ModuleMetadata } from '@nestjs/common/interfaces';
-import { Redis, RedisOptions } from 'ioredis';
+import type { ModuleMetadata } from '@nestjs/common/interfaces';
+import type { Redis, RedisOptions } from 'ioredis';
 
 declare global {
   namespace Express {
@@ -53,6 +53,7 @@ export interface AuthModuleOptions {
   expiresIn: string | number;
   session?: boolean;
   su?: string;
+  suRoles?: string[];
   ignoreJti?: boolean;
   redis?: Redis | RedisOptions;
   loadUserBySub?: LoadUserBySubFn;

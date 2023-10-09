@@ -130,7 +130,7 @@ export class AuthService {
   }
 
   isSuperUser(user: AuthUser) {
-    return user?.sub === this.options.superUserSub;
+    return (user?.sub === this.options.superUserSub || this.hasAnyRole(user, this.options.superUserRoles));
   }
 
   hasAnyRole(user: AuthUser, roles: string[]) {

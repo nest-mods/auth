@@ -167,6 +167,7 @@ describe('AuthModule Tests', function() {
           useFactory: () => ({
             secret: 'demo',
             su: 'su',
+            suRoles: ['SU'],
             thisApp: 'demo',
             forApps: ['demo'],
             expiresIn: '7d',
@@ -174,7 +175,7 @@ describe('AuthModule Tests', function() {
               uid: 0,
               sub,
               password: 'test',
-              roles: ['A', 'B'],
+              roles: ['A', 'B', sub === 'su-role' ? 'SU' : 'U'],
             }),
             debug: true,
           }),
@@ -239,6 +240,13 @@ describe('AuthModule Tests', function() {
       .expect(200);
   });
 
+  it('should su role access', async () => {
+    await request(app.getHttpServer())
+      .get('/tests/c')
+      .auth('su-role', 'test')
+      .expect(200);
+  });
+
   it('should not access with wrong pass', async () => {
     await request(app.getHttpServer())
       .get('/tests/b')
@@ -249,7 +257,7 @@ describe('AuthModule Tests', function() {
   it('should access without auth', async () => {
     await request(app.getHttpServer())
       .get('/tests/no-auth')
-      .expect(200)
+      .expect(200);
   });
 
   it('should access a public route', async () => {

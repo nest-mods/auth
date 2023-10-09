@@ -18,6 +18,10 @@ export class AuthOptionsProvider implements AuthOptionsFactory, JwtOptionsFactor
     return this.options.su;
   }
 
+  get superUserRoles() {
+    return this.options.suRoles || [];
+  }
+
   get isIgnoreJTI() {
     return !!this.options.ignoreJti;
   }
