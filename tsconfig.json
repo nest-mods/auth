@@ -10,7 +10,7 @@
     "outDir": "./dist",
     "importHelpers": true,
     "incremental": true,
-    "baseUrl": "./"
+    "types": ["node", "jest"]
   },
   "exclude": [
     "node_modules"
