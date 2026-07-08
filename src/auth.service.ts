@@ -112,15 +112,14 @@ export class AuthService {
   async invalidJwtByJti(jti: string) {
     const redisClient = this.getRC();
     if (redisClient) {
-      const uid = await redisClient.get(this.getJtiKey(jti));
-      const keys = await redisClient.keys(`JWT:*:${jti}`);
-      if (!_.isEmpty(keys)) {
-        await redisClient.unlink(keys);
+      const jtiKey = this.getJtiKey(jti);
+      const uid = await redisClient.get(jtiKey);
+      if (_.isNil(uid)) {
+        await redisClient.unlink(jtiKey);
+        return;
       }
-      await redisClient.unlink(this.getJtiKey(jti));
-      if (!_.isNil(uid)) {
-        await redisClient.srem(this.getUidKey(uid), jti);
-      }
+      await redisClient.unlink(this.getTokenKey(uid, jti), jtiKey);
+      await redisClient.srem(this.getUidKey(uid), jti);
     }
   }
 
@@ -129,15 +128,11 @@ export class AuthService {
     if (redisClient) {
       const uidKey = this.getUidKey(uid);
       const jtis = await redisClient.smembers(uidKey);
-      const keys = await redisClient.keys(`JWT:${uid}:*`);
-      if (!_.isEmpty(keys)) {
-        await redisClient.unlink(keys);
-      }
-      const indexKeys = jtis.map(jti => this.getJtiKey(jti));
-      if (!_.isEmpty(indexKeys)) {
-        await redisClient.unlink(indexKeys);
-      }
-      await redisClient.unlink(uidKey);
+      const keys = jtis.flatMap(jti => [
+        this.getTokenKey(uid, jti),
+        this.getJtiKey(jti),
+      ]);
+      await redisClient.unlink(...keys, uidKey);
     }
   }
 
