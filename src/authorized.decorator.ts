@@ -27,7 +27,7 @@
  * ----------- 永 无 BUG ------------
  */
 import { SetMetadata } from '@nestjs/common';
-import * as _ from 'lodash';
+import _ from 'lodash';
 
 import { METADATA_KEY_AUTHORIZED } from './constants';
 

@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
 import { randomUUID } from 'crypto';
 import Redis from 'ioredis';
-import * as request from 'supertest';
+import request from 'supertest';
 
 import { AuthModule } from '../src/auth.module';
 import { AuthOptionsProvider } from '../src/auth-options.provider';

@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'crypto';
 import IORedis from 'ioredis';
 import { DecodeOptions, SignOptions } from 'jsonwebtoken';
-import * as _ from 'lodash';
+import _ from 'lodash';
 
 import { AuthOptionsProvider } from './auth-options.provider';
 import { AuthJwtUser, AuthUser, AuthUserWithCredential, UidType } from './interfaces';

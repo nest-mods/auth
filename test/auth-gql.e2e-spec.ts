@@ -12,9 +12,9 @@ const logger = new Logger('AuthModule Tests for GraphQL');
 @ArgsType()
 class LoginArgs {
   @Field()
-  username: string;
+  username!: string;
   @Field()
-  password: string;
+  password!: string;
 }
 
 @Resolver()

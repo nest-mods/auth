@@ -46,13 +46,14 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return getRequestFromExecutionContext(context);
   }
 
-  async canActivate(context: ExecutionContext) {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     if (this.options.isDebug) {
       this.logger.debug(`try to authenticated by jwt`);
     }
 
     try {
-      return await resolveAny(super.canActivate(context));
+      const authenticated = await resolveAny(super.canActivate(context));
+      return !!authenticated;
     } catch {
       if (this.options.isDebug) {
         this.logger.debug(`no jwt founded, skip`);
