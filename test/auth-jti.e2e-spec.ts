@@ -1,10 +1,15 @@
-import { UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, INestApplication, Module, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { Test } from '@nestjs/testing';
 import { randomUUID } from 'crypto';
 import Redis from 'ioredis';
+import * as request from 'supertest';
 
+import { AuthModule } from '../src/auth.module';
 import { AuthOptionsProvider } from '../src/auth-options.provider';
 import { AuthService } from '../src/auth.service';
+import { Authorized } from '../src/authorized.decorator';
+import { CurrentUser } from '../src/current-user.decorator';
 import { AuthJwtUser, UidType } from '../src/interfaces';
 
 const jwtService = new JwtService();
@@ -23,6 +28,24 @@ function uidKey(uid: UidType) {
 
 function newUid() {
   return `auth-jti-test-${randomUUID()}`;
+}
+
+@Controller('jti-auth')
+class JtiAuthController {
+  @Authorized()
+  @Get('me')
+  me(@CurrentUser({ required: true }) user: Express.User) {
+    return {
+      uid: user.uid,
+      sub: user.sub,
+    };
+  }
+}
+
+@Module({
+  controllers: [JtiAuthController],
+})
+class JtiAuthTestModule {
 }
 
 function createAuthService(redis: Redis) {
@@ -50,6 +73,7 @@ function createAuthService(redis: Redis) {
 
 describe('AuthService JWT JTI storage', () => {
   let redis: Redis;
+  let app: INestApplication;
   let service: AuthService;
   const issuedTokens: string[] = [];
 
@@ -66,6 +90,24 @@ describe('AuthService JWT JTI storage', () => {
     await redis.connect();
     await redis.ping();
     service = createAuthService(redis);
+
+    const module = await Test.createTestingModule({
+      imports: [
+        JtiAuthTestModule,
+        AuthModule.forRootAsync({
+          useFactory: () => ({
+            secret: 'demo',
+            thisApp: 'demo',
+            forApps: ['demo'],
+            expiresIn: '7d',
+            redis,
+          }),
+        }),
+      ],
+    }).compile();
+
+    app = module.createNestApplication();
+    await app.init();
   });
 
   afterEach(async () => {
@@ -80,6 +122,7 @@ describe('AuthService JWT JTI storage', () => {
   });
 
   afterAll(async () => {
+    await app.close();
     await redis.quit();
   });
 
@@ -154,5 +197,24 @@ describe('AuthService JWT JTI storage', () => {
     expect(await redis.exists(jtiKey(jti1))).toBe(0);
     expect(await redis.exists(jtiKey(jti2))).toBe(0);
     expect(await redis.exists(uidKey(uid))).toBe(0);
+  });
+
+  it('should return 401 when accessing an endpoint with an invalidated jwt', async () => {
+    const {
+      token,
+      payload: { jti },
+    } = await issueTestJwt();
+
+    await request(app.getHttpServer())
+    .get('/jti-auth/me')
+    .auth(token, { type: 'bearer' })
+    .expect(200);
+
+    await service.invalidJwtByJti(jti);
+
+    await request(app.getHttpServer())
+    .get('/jti-auth/me')
+    .auth(token, { type: 'bearer' })
+    .expect(401);
   });
 });
