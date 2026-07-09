@@ -52,8 +52,7 @@ export class BasicAuthGuard extends AuthGuard('basic') {
     }
 
     try {
-      const authenticated = await resolveAny(super.canActivate(context));
-      return !!authenticated;
+      return await resolveAny(super.canActivate(context));
     } catch {
       if (this.options.isDebug) {
         this.logger.debug(`no basic founded, skip`);
