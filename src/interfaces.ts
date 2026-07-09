@@ -29,6 +29,7 @@
 
 import type { ModuleMetadata } from '@nestjs/common/interfaces';
 import type { Redis, RedisOptions } from 'ioredis';
+import type { SignOptions } from 'jsonwebtoken';
 
 declare global {
   namespace Express {
@@ -50,7 +51,7 @@ export interface AuthModuleOptions {
   secret: string;
   thisApp: string;
   forApps: string[];
-  expiresIn: string | number;
+  expiresIn: NonNullable<SignOptions['expiresIn']>;
   session?: boolean;
   su?: string;
   suRoles?: string[];

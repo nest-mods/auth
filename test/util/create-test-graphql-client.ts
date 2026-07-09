@@ -29,7 +29,7 @@
 
 import { INestApplication } from '@nestjs/common';
 import { DocumentNode, print } from 'graphql';
-import * as supertest from 'supertest';
+import supertest from 'supertest';
 
 export type GQLClient = (doc: DocumentNode, variables?: any) => supertest.Test;
 

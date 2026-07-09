@@ -53,7 +53,7 @@
 
 import { Body, Controller, Get, HttpCode, HttpStatus, INestApplication, Logger, Module, Post, Req } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AuthModule, Authorized, AuthService, CurrentUser, LoggedIn } from '../src';
 import { NoAuth } from '../src/no-auth.decorator';
 
@@ -61,8 +61,8 @@ const logger = new Logger('AuthModule Tests');
 
 // <editor-fold desc="TL:DR">
 class LoginReq {
-  username: string;
-  password: string;
+  username!: string;
+  password!: string;
 }
 
 @Controller('auth')

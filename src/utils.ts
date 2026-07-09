@@ -28,7 +28,7 @@
  */
 
 import { ExecutionContext } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import { lastValueFrom, Observable } from 'rxjs';
 
 export function getRequestFromExecutionContext<T = any>(context: ExecutionContext): T {
   switch (context.getType() as import('@nestjs/graphql').GqlContextType) {
@@ -43,7 +43,7 @@ export function getRequestFromExecutionContext<T = any>(context: ExecutionContex
 
 export async function resolveAny<T = any>(target: Promise<T> | Observable<T> | T) {
   if (target instanceof Observable) {
-    return target.toPromise();
+    return lastValueFrom(target);
   }
   return target;
 }

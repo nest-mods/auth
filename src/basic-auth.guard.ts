@@ -46,7 +46,7 @@ export class BasicAuthGuard extends AuthGuard('basic') {
     return getRequestFromExecutionContext(context);
   }
 
-  async canActivate(context: ExecutionContext) {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     if (this.options.isDebug) {
       this.logger.debug(`try to authenticated by basic`);
     }

@@ -4,13 +4,14 @@
     "noImplicitAny": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "esModuleInterop": true,
     "target": "ES2020",
     "sourceMap": true,
     "declaration": true,
     "outDir": "./dist",
     "importHelpers": true,
     "incremental": true,
-    "baseUrl": "./"
+    "types": ["node", "jest"]
   },
   "exclude": [
     "node_modules"

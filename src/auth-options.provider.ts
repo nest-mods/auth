@@ -1,10 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { JwtModuleOptions, JwtOptionsFactory } from '@nestjs/jwt';
 import { AuthOptionsFactory, IAuthModuleOptions } from '@nestjs/passport';
-import * as _ from 'lodash';
+import _ from 'lodash';
 import { ExtractJwt, StrategyOptions } from 'passport-jwt';
 import { AuthModuleOptions } from './interfaces';
 import { NoopPasswordEncoder } from './noop-password-encoder';
+
+type JwtStrategyOptionsWithoutRequest = Exclude<StrategyOptions, { passReqToCallback: true }>;
 
 @Injectable()
 export class AuthOptionsProvider implements AuthOptionsFactory, JwtOptionsFactory {
@@ -73,13 +75,14 @@ export class AuthOptionsProvider implements AuthOptionsFactory, JwtOptionsFactor
     };
   }
 
-  createJwtStrategyOptions(): StrategyOptions {
+  createJwtStrategyOptions(): JwtStrategyOptionsWithoutRequest {
     return {
       jwtFromRequest: ExtractJwt.fromExtractors([
         ExtractJwt.fromAuthHeaderAsBearerToken(),
       ]),
       secretOrKey: this.options.secret,
       audience: this.options.thisApp,
+      passReqToCallback: false as const,
     };
   }
 

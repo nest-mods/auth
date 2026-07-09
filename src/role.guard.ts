@@ -28,7 +28,7 @@
  */
 import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import * as _ from 'lodash';
+import _ from 'lodash';
 
 import { AuthOptionsProvider } from './auth-options.provider';
 import { AuthService } from './auth.service';
