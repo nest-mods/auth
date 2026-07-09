@@ -118,7 +118,7 @@ export class AuthService {
         await redisClient.unlink(jtiKey);
         return;
       }
-      await redisClient.unlink(this.getTokenKey(uid, jti), jtiKey);
+      await redisClient.unlink(jtiKey);
       await redisClient.srem(this.getUidKey(uid), jti);
     }
   }
@@ -128,10 +128,7 @@ export class AuthService {
     if (redisClient) {
       const uidKey = this.getUidKey(uid);
       const jtis = await redisClient.smembers(uidKey);
-      const keys = jtis.flatMap(jti => [
-        this.getTokenKey(uid, jti),
-        this.getJtiKey(jti),
-      ]);
+      const keys = jtis.map(jti => this.getJtiKey(jti));
       await redisClient.unlink(...keys, uidKey);
     }
   }
@@ -148,12 +145,9 @@ export class AuthService {
     const redisClient = this.getRC();
     if (redisClient) {
       const { uid, exp, jti } = this.jwtService.decode(token) as AuthJwtUser;
-      const key = this.getTokenKey(uid, jti);
       const jtiKey = this.getJtiKey(jti);
       const uidKey = this.getUidKey(uid);
       await redisClient.multi()
-      .set(key, 'OK')
-      .expireat(key, exp)
       .set(jtiKey, String(uid))
       .expireat(jtiKey, exp)
       .sadd(uidKey, jti)
@@ -165,15 +159,11 @@ export class AuthService {
   private async checkJti(uid: UidType, jti: string) {
     const redisClient = this.getRC();
     if (redisClient) {
-      const exist = await redisClient.exists(this.getTokenKey(uid, jti));
-      if (!exist) {
+      const savedUid = await redisClient.get(this.getJtiKey(jti));
+      if (savedUid !== String(uid)) {
         throw new UnauthorizedException();
       }
     }
-  }
-
-  private getTokenKey(uid: UidType, jti: string) {
-    return `JWT:${uid}:${jti}`;
   }
 
   private getJtiKey(jti: string) {
