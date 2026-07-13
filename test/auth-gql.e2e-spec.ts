@@ -315,4 +315,27 @@ describe('AuthModule Tests for GraphQL', () => {
 
     expect(body).not.toHaveProperty('errors');
   });
+
+  it('should reject access to logged-in query without authentication', async () => {
+    const { body } = await client(gql`
+        query {
+            needLogin2
+        }
+    `).expect(200);
+
+    expect(body).toHaveProperty('errors');
+    expect(body.errors[0].extensions.code).toEqual('UNAUTHENTICATED');
+  });
+
+  it('should access logged-in query with a valid jwt', async () => {
+    const { body } = await client(gql`
+        query {
+            needLogin2
+        }
+    `)
+    .auth(token, { type: 'bearer' })
+    .expect(200);
+
+    expect(body).not.toHaveProperty('errors');
+  });
 });

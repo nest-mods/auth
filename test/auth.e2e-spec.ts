@@ -52,6 +52,7 @@
  */
 
 import { Body, Controller, Get, HttpCode, HttpStatus, INestApplication, Logger, Module, Post, Req } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { AuthModule, Authorized, AuthService, CurrentUser, LoggedIn } from '../src';
@@ -284,5 +285,50 @@ describe('AuthModule Tests', function() {
       .get('/test2/need-login2')
       .auth('test', 'test')
       .expect(200);
+  });
+
+  it('should reject access to logged-in route without authentication', async () => {
+    await request(app.getHttpServer())
+      .get('/test2/need-login2')
+      .expect(401);
+  });
+
+  it('should access logged-in route with a valid jwt', async () => {
+    await request(app.getHttpServer())
+      .get('/test2/need-login2')
+      .auth(token, { type: 'bearer' })
+      .expect(200);
+  });
+
+  it('should reject a jwt with an invalid signature as unauthorized', async () => {
+    const invalidToken = new JwtService({
+      secret: 'wrong-secret',
+      signOptions: {
+        issuer: 'demo',
+        audience: ['demo'],
+        expiresIn: '7d',
+      },
+    }).sign({ uid: 0, sub: 'test', roles: ['A', 'B', 'U'] });
+
+    await request(app.getHttpServer())
+      .get('/test2/need-login2')
+      .auth(invalidToken, { type: 'bearer' })
+      .expect(401);
+  });
+
+  it('should reject an expired jwt as unauthorized', async () => {
+    const expiredToken = new JwtService({
+      secret: 'demo',
+      signOptions: {
+        issuer: 'demo',
+        audience: ['demo'],
+        expiresIn: -1,
+      },
+    }).sign({ uid: 0, sub: 'test', roles: ['A', 'B', 'U'] });
+
+    await request(app.getHttpServer())
+      .get('/test2/need-login2')
+      .auth(expiredToken, { type: 'bearer' })
+      .expect(401);
   });
 });

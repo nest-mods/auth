@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { getRequestFromExecutionContext } from './utils';
 
 /**
@@ -11,6 +11,9 @@ export class LoggedInGuard implements CanActivate {
   canActivate(context: ExecutionContext) {
     const req = getRequestFromExecutionContext(context);
     const user = req?.user;
-    return !!user;
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+    return true;
   }
 }
